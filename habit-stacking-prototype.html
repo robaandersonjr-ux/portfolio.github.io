@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Habit Stacking — Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+/* ─── RESET & ROOT ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green: #264D2C; --orange: #D95E1D; --mint: #C6E2CF;
+  --yellow: #E8A834; --cream: #F8F5F2; --slate: #2E2E2E;
+  --slate-light: #6B7280; --white: #FFFFFF;
+  --shadow: 0 2px 16px rgba(38,77,44,0.08);
+  --shadow-lg: 0 8px 32px rgba(38,77,44,0.13);
+}
+
+/* ─── OUTER SHELL ───────────────────────────────────────────── */
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: #1a1c1f;
+  color: var(--slate);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 0 48px;
+}
+
+.device {
+  width: 390px;
+  height: 844px;
+  background: var(--cream);
+  border-radius: 54px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.55), 0 0 0 2px #333;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dynamic island */
+.device::before {
+  content: '';
+  position: absolute;
+  top: 12px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px;
+  background: #0a0a0a;
+  border-radius: 20px;
+  z-index: 100;
+}
+
+/* ─── SCREEN SYSTEM ─────────────────────────────────────────── */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(30px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(0);
+}
+.screen.exit-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+/* ─── SCROLL AREA ───────────────────────────────────────────── */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  padding-bottom: 16px;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* ─── STATUS BAR ────────────────────────────────────────────── */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 52px 24px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green);
+  flex-shrink: 0;
+}
+.status-bar.light { color: white; }
+.status-bar .time { font-size: 15px; font-weight: 800; }
+.status-icons { display: flex; gap: 5px; align-items: center; font-size: 12px; }
+
+/* ─── BOTTOM NAV ────────────────────────────────────────────── */
+.bottom-nav {
+  background: var(--white);
+  border-top: 1px solid rgba(38,77,44,0.07);
+  padding: 10px 0 24px;
+  display: flex;
+  justify-content: space-around;
+  flex-shrink: 0;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  flex: 1;
+  transition: opacity 0.15s;
+}
+.nav-item:hover { opacity: 0.75; }
+.nav-icon {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; position: relative;
+}
+.nav-icon.active-dot::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; width: 5px; height: 5px;
+  border-radius: 50%; background: var(--orange);
+}
+.nav-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--slate-light);
+  text-transform: uppercase;
+}
+.nav-item.active .nav-label { color: var(--green); }
+
+/* ─── SHARED COMPONENTS ─────────────────────────────────────── */
+.section-label {
+  padding: 0 24px 10px;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--slate-light);
+}
+.card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+.progress-track { height: 7px; background: #EEF0EE; border-radius: 10px; overflow: hidden; }
+.progress-fill  { height: 100%; border-radius: 10px; }
+
+@keyframes fadeUp   { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes growBar  { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@keyframes growUp   { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+
+/* ════════════════════════════════════════════════════════════════
+   SCREEN 1 — LOGIN
+════════════════════════════════════════════════════════════════ */
+#screen-login { background: var(--cream); }
+.login-hero {
+  background: var(--green);
+  padding: 52px 32px 40px;
+  display: flex; flex-direction: column; align-items: center;
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.login-hero::after {
+  content: ''; position: absolute;
+  bottom: -26px; left: 0; right: 0;
+  height: 52px; background: var(--cream);
+  border-radius: 50% 50% 0 0 / 26px 26px 0 0;
+}
+.logo-wrap {
+  width: 86px; height: 86px;
+  background: var(--cream); border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; margin-bottom: 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+.logo-wrap img { width: 80px; height: 80px; object-fit: contain; }
+.login-app-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 700; color: white;
+}
+.login-tagline { font-size: 11px; font-weight: 600; color: var(--mint); margin-top: 3px; }
+
+.login-form {
+  flex: 1; padding: 44px 28px 20px;
+  display: flex; flex-direction: column;
+  animation: fadeUp 0.4s 0.1s ease both;
+}
+.login-welcome { font-size: 21px; font-weight: 800; color: var(--slate); margin-bottom: 4px; }
+.login-sub { font-size: 13px; font-weight: 600; color: var(--slate-light); margin-bottom: 26px; }
+
+.field-group { display: flex; flex-direction: column; gap: 11px; margin-bottom: 10px; }
+.input-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%); font-size: 15px; pointer-events: none;
+}
+.text-field {
+  width: 100%; background: var(--white);
+  border: 2px solid transparent; border-radius: 13px;
+  padding: 13px 13px 13px 40px;
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 14px; font-weight: 600; color: var(--slate);
+  outline: none; box-shadow: var(--shadow);
+  transition: border-color 0.2s;
+}
+.text-field:focus { border-color: var(--mint); }
+.text-field.is-active { border-color: var(--green); }
+
+.forgot-row { display: flex; justify-content: flex-end; margin-bottom: 18px; margin-top: 2px; }
+.forgot-link { font-size: 12px; font-weight: 700; color: var(--orange); cursor: pointer; }
+
+.login-btn {
+  width: 100%; background: var(--green); color: white;
+  border: none; border-radius: 15px; padding: 15px;
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 15px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(38,77,44,0.28);
+  transition: transform 0.15s; margin-bottom: 20px;
+}
+.login-btn:hover { transform: translateY(-1px); }
+
+.social-label {
+  font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--slate-light);
+  text-align: center; margin-bottom: 12px;
+}
+.social-row { display: flex; gap: 9px; margin-bottom: 22px; }
+.social-btn {
+  flex: 1; background: var(--white); border: 2px solid #E8E5E1;
+  border-radius: 13px; padding: 11px 6px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; font-family: 'Nunito Sans', sans-serif;
+  font-size: 12px; font-weight: 700; color: var(--slate);
+  box-shadow: var(--shadow); transition: border-color 0.15s;
+}
+.social-btn:hover { border-color: var(--mint); }
+.g-color { color: #EA4335; font-weight: 800; }
+.ms-color { color: #00A4EF; }
+.fb-color { color: #1877F2; font-weight: 800; }
+
+.signup-row {
+  text-align: center; font-size: 13px; font-weight: 600;
+  color: var(--slate-light); margin-top: auto; padding-bottom: 8px;
+}
+.signup-link {
+  color: var(--green); font-weight: 800;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.terms-text {
+  text-align: center; font-size: 10px; font-weight: 600;
+  color: #B0A8A0; line-height: 1.6;
+}
+.terms-text span { color: var(--slate-light); text-decoration: underline; cursor: pointer; }
+
+/* ════════════════════════════════════════════════════════════════
+   SCREEN 2 — HOME / TODAY
+════════════════════════════════════════════════════════════════ */
+.home-header {
+  padding: 8px 24px 18px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  flex-shrink: 0;
+}
+.home-greeting { font-size: 12px; font-weight: 700; color: var(--slate-light); letter-spacing: 0.04em; text-transform: uppercase; }
+.home-date { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--green); line-height: 1.15; margin-top: 2px; }
+.avatar { width: 40px; height: 40px; border-radius: 13px; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: var(--mint); flex-shrink: 0; }
+
+.xp-strip {
+  margin: 0 24px 20px; background: var(--green);
+  border-radius: 16px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  animation: fadeUp 0.4s ease both;
+}
+.xp-icon { width: 38px; height: 38px; background: var(--mint); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.xp-info { flex: 1; }
+.xp-lbl  { font-size: 10px; font-weight: 700; color: var(--mint); letter-spacing: 0.07em; text-transform: uppercase; }
+.xp-row  { display: flex; align-items: center; justify-content: space-between; margin-top: 3px; }
+.xp-pts  { font-size: 20px; font-weight: 800; color: white; }
+.xp-lvl  { font-size: 11px; font-weight: 700; color: var(--yellow); background: rgba(232,168,52,0.15); padding: 2px 9px; border-radius: 20px; }
+.xp-bar-bg  { height: 5px; background: rgba(198,226,207,0.25); border-radius: 10px; margin-top: 7px; overflow: hidden; }
+.xp-bar-fill { height: 100%; width: 63%; background: var(--yellow); border-radius: 10px; animation: growBar 1s 0.4s ease both; transform-origin: left; }
+
+.stacks-scroll { display: flex; gap: 12px; padding: 0 24px 20px; overflow-x: auto; scrollbar-width: none; }
+.stacks-scroll::-webkit-scrollbar { display: none; }
+.stack-pill { display: flex; flex-direction: column; align-items: center; gap: 5px; flex-shrink: 0; cursor: pointer; }
+.stack-pill-icon { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 22px; position: relative; transition: transform 0.15s; }
+.stack-pill:hover .stack-pill-icon { transform: translateY(-2px); }
+.stack-pill.selected .stack-pill-icon::after { content: ''; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.stack-pill-name { font-size: 10px; font-weight: 700; color: var(--slate-light); }
+.stack-pill.selected .stack-pill-name { color: var(--green); }
+
+.progress-summary { margin: 0 24px 20px; padding: 16px 18px; animation: fadeUp 0.4s 0.1s ease both; }
+.prog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.prog-title { font-size: 14px; font-weight: 800; color: var(--slate); }
+.prog-pct   { font-size: 13px; font-weight: 800; color: var(--orange); }
+.prog-sub   { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--slate-light); }
+.prog-sub span { color: var(--green); font-weight: 800; }
+
+.habits-list { padding: 0 24px; display: flex; flex-direction: column; gap: 9px; }
+.brick-card {
+  background: var(--white); border-radius: 17px;
+  padding: 13px 15px; display: flex; align-items: center; gap: 13px;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  animation: fadeUp 0.4s ease both;
+}
+.brick-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.brick-card.done { background: #f4faf5; }
+.brick-card.done .brick-name { text-decoration: line-through; color: var(--slate-light); }
+.brick-icon-wrap { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.brick-info { flex: 1; }
+.brick-name { font-size: 14px; font-weight: 700; color: var(--slate); }
+.brick-meta { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
+.brick-tag  { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+.brick-xp   { font-size: 10px; font-weight: 700; color: var(--slate-light); }
+.brick-check {
+  width: 26px; height: 26px; border-radius: 9px;
+  border: 2.5px solid var(--mint);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s; cursor: pointer;
+}
+.brick-card.done .brick-check { background: var(--green); border-color: var(--green); }
+.brick-check svg { opacity: 0; transition: opacity 0.15s; }
+.brick-card.done .brick-check svg { opacity: 1; }
+
+.replacement-banner {
+  margin: 9px 24px 0;
+  background: linear-gradient(135deg,#fff8ef,#fdf3e5);
+  border: 1.5px solid var(--yellow); border-radius: 17px;
+  padding: 13px 15px; display: flex; align-items: center; gap: 11px;
+  animation: fadeUp 0.4s 0.5s ease both;
+}
+.rep-left  { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.rep-old   { font-size: 10px; font-weight: 700; color: var(--slate-light); text-decoration: line-through; padding: 5px 8px; background: rgba(0,0,0,0.05); border-radius: 7px; }
+.rep-arrow { font-size: 13px; color: var(--orange); }
+.rep-new   { font-size: 11px; font-weight: 800; color: var(--green); padding: 5px 8px; background: var(--mint); border-radius: 7px; }
+.rep-info  { flex: 1; }
+.rep-lbl   { font-size: 10px; font-weight: 800; color: var(--orange); text-transform: uppercase; letter-spacing: 0.07em; }
+.rep-title { font-size: 13px; font-weight: 700; color: var(--slate); margin-top: 1px; }
+.rep-sub   { font-size: 10px; color: var(--slate-light); margin-top: 1px; font-weight: 600; }
+
+.streak-row { display: flex; justify-content: center; margin: 16px 24px 6px; gap: 9px; }
+.streak-pill { display: flex; align-items: center; gap: 5px; background: var(--white); border-radius: 22px; padding: 7px 14px; box-shadow: var(--shadow); font-size: 12px; font-weight: 800; color: var(--green); }
+
+/* ════════════════════════════════════════════════════════════════
+   SCREEN 3 — MY STACKS
+════════════════════════════════════════════════════════════════ */
+.stacks-header { padding: 8px 24px 18px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--green); }
+.add-btn { width: 38px; height: 38px; background: var(--green); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; color: white; transition: transform 0.15s; }
+.add-btn:hover { transform: scale(1.06); }
+
+.summary-strip { margin: 0 24px 22px; display: flex; gap: 9px; }
+.summary-card { flex: 1; background: var(--white); border-radius: 15px; padding: 13px; box-shadow: var(--shadow); text-align: center; animation: fadeUp 0.4s ease both; }
+.summary-num { font-size: 22px; font-weight: 800; color: var(--green); }
+.summary-lbl { font-size: 9px; font-weight: 700; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+.stacks-list { padding: 0 24px; display: flex; flex-direction: column; gap: 13px; }
+.stack-card { background: var(--white); border-radius: 20px; padding: 16px 16px 14px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; animation: fadeUp 0.4s ease both; }
+.stack-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.stack-card-header { display: flex; align-items: center; gap: 11px; margin-bottom: 12px; }
+.stack-emoji { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.stack-card-name  { font-size: 15px; font-weight: 800; color: var(--slate); }
+.stack-card-count { font-size: 11px; font-weight: 600; color: var(--slate-light); margin-top: 2px; }
+.stack-menu { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 9px; color: var(--slate-light); font-size: 16px; cursor: pointer; margin-left: auto; }
+.stack-prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.stack-prog-lbl { font-size: 11px; font-weight: 700; color: var(--slate-light); }
+.stack-prog-pct { font-size: 11px; font-weight: 800; color: var(--orange); }
+.stack-bricks-preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 11px; }
+.stack-streak { display: flex; align-items: center; gap: 5px; margin-top: 11px; padding-top: 11px; border-top: 1px solid #F0F0F0; font-size: 11px; font-weight: 700; color: var(--slate-light); }
+.stack-streak span { color: var(--orange); }
+
+.add-stack-cta { margin: 13px 24px 0; border: 2px dashed var(--mint); border-radius: 20px; padding: 18px; display: flex; align-items: center; justify-content: center; gap: 9px; cursor: pointer; transition: background 0.15s; animation: fadeUp 0.4s 0.42s ease both; }
+.add-stack-cta:hover { background: rgba(198,226,207,0.2); }
+.add-cta-icon { width: 34px; height: 34px; background: var(--mint); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.add-cta-text { font-size: 13px; font-weight: 800; color: var(--green); }
+
+/* ════════════════════════════════════════════════════════════════
+   SCREEN 4 — BUILD STACK
+════════════════════════════════════════════════════════════════ */
+.top-bar { padding: 6px 24px 14px; display: flex; align-items: center; gap: 11px; flex-shrink: 0; }
+.back-btn { width: 36px; height: 36px; border-radius: 11px; background: var(--white); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 17px; transition: background 0.15s; }
+.back-btn:hover { background: var(--mint); }
+.top-bar-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--green); flex: 1; }
+.save-btn { background: var(--green); color: white; font-size: 12px; font-weight: 800; padding: 7px 16px; border-radius: 11px; cursor: pointer; transition: transform 0.15s; }
+.save-btn:hover { transform: scale(1.04); }
+
+.identity-card { margin: 0 24px 18px; padding: 16px; animation: fadeUp 0.4s ease both; }
+.identity-row  { display: flex; align-items: center; gap: 13px; margin-bottom: 13px; }
+.emoji-picker  { width: 52px; height: 52px; background: #EAF5EC; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 2px dashed var(--mint); transition: background 0.15s; }
+.emoji-picker:hover { background: var(--mint); }
+.field-label { font-size: 10px; font-weight: 800; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.text-input  { width: 100%; border: none; background: var(--cream); border-radius: 9px; padding: 9px 11px; font-family: 'Nunito Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--slate); outline: none; }
+.text-input:focus { box-shadow: 0 0 0 2px var(--mint); }
+.freq-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.freq-pill { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; }
+.freq-pill.active { background: var(--green); color: white; }
+.freq-pill:not(.active) { background: var(--cream); color: var(--slate-light); }
+
+.bricks-list { padding: 0 24px; display: flex; flex-direction: column; gap: 9px; }
+.brick-row { background: var(--white); border-radius: 16px; padding: 11px 13px; display: flex; align-items: center; gap: 11px; box-shadow: var(--shadow); animation: fadeUp 0.4s ease both; }
+.drag-handle { color: #CCC; font-size: 15px; cursor: grab; }
+.brick-icon-sm { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.brick-row-name { font-size: 13px; font-weight: 700; color: var(--slate); }
+.brick-row-meta { display: flex; align-items: center; gap: 7px; margin-top: 2px; }
+.diff-badge { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 20px; }
+.diff-easy { background: #EAF5EC; color: #264D2C; }
+.diff-med  { background: #FEF9EC; color: #E8A834; }
+.diff-hard { background: #FFF0E8; color: #D95E1D; }
+.xp-small  { font-size: 10px; font-weight: 700; color: var(--slate-light); }
+.brick-delete { width: 26px; height: 26px; border-radius: 8px; background: #FFF0EE; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #E04040; font-size: 13px; }
+
+.add-brick-btn { margin: 9px 24px 0; border: 2px dashed var(--mint); border-radius: 16px; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; transition: background 0.15s; }
+.add-brick-btn:hover { background: rgba(198,226,207,0.2); }
+.add-brick-btn-icon { width: 28px; height: 28px; background: var(--mint); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.add-brick-btn-text { font-size: 12px; font-weight: 800; color: var(--green); }
+
+.rep-config { margin: 18px 24px 0; background: linear-gradient(135deg,#fff8ef,#fdf3e5); border: 1.5px solid var(--yellow); border-radius: 20px; padding: 16px; animation: fadeUp 0.4s 0.44s ease both; }
+.rep-config-header { display: flex; align-items: center; gap: 7px; margin-bottom: 13px; }
+.rep-config-title { font-size: 13px; font-weight: 800; color: var(--slate); }
+.rep-config-badge { font-size: 10px; font-weight: 800; color: var(--orange); background: rgba(217,94,29,0.1); padding: 2px 7px; border-radius: 20px; margin-left: auto; }
+.rep-fields { display: flex; align-items: center; gap: 9px; }
+.rep-field { flex: 1; }
+.rep-input { width: 100%; border: none; background: var(--white); border-radius: 9px; padding: 9px 11px; font-family: 'Nunito Sans', sans-serif; font-size: 12px; font-weight: 700; color: var(--slate); outline: none; box-shadow: var(--shadow); }
+.rep-input:focus { box-shadow: 0 0 0 2px var(--yellow); }
+.rep-hint { margin-top: 9px; font-size: 10px; font-weight: 600; color: var(--slate-light); }
+
+.diff-summary { margin: 18px 24px 0; padding: 16px; animation: fadeUp 0.4s 0.5s ease both; }
+.diff-summary-title { font-size: 13px; font-weight: 800; color: var(--slate); margin-bottom: 11px; }
+.diff-bars { display: flex; flex-direction: column; gap: 7px; }
+.diff-bar-row { display: flex; align-items: center; gap: 9px; }
+.diff-bar-label { font-size: 11px; font-weight: 700; color: var(--slate-light); width: 34px; }
+.diff-bar-track { flex: 1; height: 6px; background: #F0F0F0; border-radius: 10px; overflow: hidden; }
+.diff-bar-fill  { height: 100%; border-radius: 10px; animation: growBar 1s ease both; transform-origin: left; }
+.diff-bar-pts   { font-size: 10px; font-weight: 800; color: var(--slate-light); width: 38px; text-align: right; }
+
+/* ════════════════════════════════════════════════════════════════
+   SCREEN 5 — JOURNAL
+════════════════════════════════════════════════════════════════ */
+.journal-header { padding: 8px 24px 16px; flex-shrink: 0; }
+.journal-sub { font-size: 12px; font-weight: 600; color: var(--slate-light); margin-top: 3px; }
+
+.prompt-card { margin: 0 24px 20px; background: var(--green); border-radius: 20px; padding: 18px; animation: fadeUp 0.4s ease both; }
+.prompt-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mint); margin-bottom: 7px; }
+.prompt-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; color: white; line-height: 1.5; }
+.prompt-refresh { display: flex; align-items: center; gap: 5px; margin-top: 12px; cursor: pointer; }
+.prompt-refresh-icon { width: 26px; height: 26px; background: rgba(198,226,207,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.prompt-refresh-text { font-size: 11px; font-weight: 700; color: var(--mint); }
+
+.entry-card { margin: 0 24px 18px; padding: 16px; animation: fadeUp 0.4s 0.1s ease both; }
+.entry-date-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; }
+.entry-date { font-size: 12px; font-weight: 800; color: var(--green); }
+.mood-row { display: flex; gap: 7px; }
+.mood-btn { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; background: var(--cream); transition: transform 0.15s; }
+.mood-btn:hover { transform: scale(1.15); }
+.mood-btn.selected { background: var(--mint); }
+.entry-textarea { width: 100%; border: none; background: var(--cream); border-radius: 12px; padding: 12px; font-family: 'Nunito Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--slate); outline: none; resize: none; min-height: 110px; line-height: 1.6; }
+.entry-textarea:focus { box-shadow: 0 0 0 2px var(--mint); }
+.entry-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; }
+.char-count { font-size: 10px; font-weight: 700; color: var(--slate-light); }
+.save-entry-btn { background: var(--green); color: white; font-size: 12px; font-weight: 800; padding: 8px 18px; border-radius: 11px; cursor: pointer; transition: transform 0.15s; }
+.save-entry-btn:hover { transform: scale(1.04); }
+
+.tags-row { margin: 0 24px 18px; }
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+.refl-tag { padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; }
+.refl-tag.on  { border-color: var(--green); background: #EAF5EC; color: var(--green); }
+.refl-tag.off { background: var(--white); color: var(--slate-light); box-shadow: var(--shadow); }
+
+.past-entries { padding: 0 24px; display: flex; flex-direction: column; gap: 10px; }
+.past-entry { background: var(--white); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s; animation: fadeUp 0.4s ease both; }
+.past-entry:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+.past-entry-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.past-entry-date { font-size: 11px; font-weight: 800; color: var(--green); }
+.past-entry-text { font-size: 12px; font-weight: 600; color: var(--slate); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.past-entry-tags { display: flex; gap: 5px; margin-top: 9px; flex-wrap: wrap; }
+.past-entry-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; background: var(--cream); color: var(--slate-light); }
+
+/* ════════════════════════════════════════════════════════════════
+   SCREEN 6 — PROFILE
+════════════════════════════════════════════════════════════════ */
+.profile-hero { background: var(--green); padding: 14px 24px 26px; position: relative; overflow: hidden; flex-shrink: 0; }
+.profile-hero::after { content: ''; position: absolute; bottom: -24px; left: 0; right: 0; height: 48px; background: var(--cream); border-radius: 50% 50% 0 0 / 24px 24px 0 0; }
+.profile-hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.profile-hero-title { font-family: 'Playfair Display', serif; font-size: 20px; color: white; }
+.settings-btn { width: 34px; height: 34px; background: rgba(255,255,255,0.1); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; }
+.profile-row { display: flex; align-items: center; gap: 14px; }
+.avatar-lg { width: 58px; height: 58px; border-radius: 18px; background: var(--mint); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: var(--green); flex-shrink: 0; border: 3px solid rgba(255,255,255,0.25); }
+.profile-name   { font-size: 18px; font-weight: 800; color: white; }
+.profile-handle { font-size: 12px; font-weight: 600; color: var(--mint); margin-top: 1px; }
+.profile-since  { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.45); margin-top: 3px; }
+.level-badge    { display: inline-flex; align-items: center; gap: 5px; background: var(--yellow); color: var(--slate); font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 20px; margin-top: 5px; }
+
+.xp-card { margin: 0 24px 20px; padding: 18px; animation: fadeUp 0.4s ease both; }
+.xp-card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 13px; }
+.xp-total     { font-size: 26px; font-weight: 800; color: var(--green); }
+.xp-pts-lbl   { font-size: 10px; font-weight: 700; color: var(--slate-light); }
+.xp-next-lvl  { font-size: 16px; font-weight: 800; color: var(--orange); }
+.level-row    { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; font-weight: 700; color: var(--slate-light); }
+.level-row span { color: var(--green); font-weight: 800; }
+.xp-bar-bg2   { height: 7px; background: #EEF0EE; border-radius: 10px; overflow: hidden; }
+.xp-bar-fill2 { height: 100%; width: 63%; background: linear-gradient(90deg,var(--green),var(--yellow)); border-radius: 10px; animation: growBar 1.2s 0.2s ease both; transform-origin: left; }
+.xp-next-text { font-size: 10px; font-weight: 700; color: var(--slate-light); margin-top: 7px; }
+.xp-next-text span { color: var(--orange); }
+
+.stats-grid { margin: 0 24px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.stat-card  { background: var(--white); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); animation: fadeUp 0.4s ease both; text-align: center; }
+.stat-icon  { font-size: 20px; margin-bottom: 5px; }
+.stat-num   { font-size: 24px; font-weight: 800; color: var(--green); }
+.stat-lbl   { font-size: 10px; font-weight: 700; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 1px; }
+
+.weekly-card  { margin: 0 24px 20px; padding: 18px; animation: fadeUp 0.4s 0.22s ease both; }
+.weekly-title { font-size: 13px; font-weight: 800; color: var(--slate); margin-bottom: 13px; }
+.week-bars    { display: flex; align-items: flex-end; justify-content: space-between; gap: 5px; height: 64px; }
+.day-col      { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
+.day-bar-wrap { flex: 1; display: flex; align-items: flex-end; width: 100%; }
+.day-bar      { width: 100%; border-radius: 5px 5px 0 0; animation: growUp 0.6s ease both; transform-origin: bottom; }
+.day-label    { font-size: 9px; font-weight: 800; color: var(--slate-light); }
+.weekly-sum-row { display: flex; justify-content: space-between; margin-top: 13px; padding-top: 13px; border-top: 1px solid #F0F0F0; }
+.wsr-item  { text-align: center; }
+.wsr-num   { font-size: 16px; font-weight: 800; color: var(--green); }
+.wsr-lbl   { font-size: 9px; font-weight: 700; color: var(--slate-light); text-transform: uppercase; }
+
+.milestones-list { padding: 0 24px; display: flex; flex-direction: column; gap: 9px; }
+.milestone-row { background: var(--white); border-radius: 15px; padding: 13px 15px; display: flex; align-items: center; gap: 13px; box-shadow: var(--shadow); animation: fadeUp 0.4s ease both; }
+.milestone-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.milestone-name { font-size: 13px; font-weight: 700; color: var(--slate); }
+.milestone-sub  { font-size: 10px; font-weight: 600; color: var(--slate-light); margin-top: 1px; }
+.badge-done   { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px; background: #EAF5EC; color: var(--green); }
+.badge-locked { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 20px; background: #F5F5F5; color: var(--slate-light); }
+</style>
+</head>
+<body>
+<div class="device">
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 1 — LOGIN
+══════════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-login">
+  <div class="login-hero">
+    <div class="logo-wrap">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Camponotus_flavomarginatus_ant.jpg/640px-Camponotus_flavomarginatus_ant.jpg"
+           id="logo-img" alt="HS" style="display:none;" />
+      <!-- SVG fallback logo mark -->
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="28" width="56" height="42" rx="8" fill="#264D2C"/>
+        <rect x="8" y="46" width="56" height="24" rx="8" fill="#3D6B42"/>
+        <!-- H cutout top -->
+        <rect x="30" y="20" width="12" height="18" fill="#F8F5F2"/>
+        <!-- flame -->
+        <ellipse cx="36" cy="14" rx="7" ry="10" fill="#D95E1D"/>
+        <ellipse cx="36" cy="17" rx="4" ry="6" fill="#E8A834"/>
+        <!-- S shape -->
+        <path d="M26 52 Q26 47 31 47 Q36 47 36 52 Q36 57 41 57 Q46 57 46 52" stroke="#F8F5F2" stroke-width="4" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="login-app-name">Habit Stacking</div>
+    <div class="login-tagline">Practice makes progress, brick by brick.</div>
+  </div>
+
+  <div class="login-form">
+    <div class="login-welcome">Welcome back 👋</div>
+    <div class="login-sub">Sign in to continue building your streaks.</div>
+    <div class="field-group">
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input class="text-field is-active" type="text" placeholder="Username or email address" value="robanderson" />
+      </div>
+      <div class="input-wrap">
+        <span class="input-icon">🔒</span>
+        <input class="text-field" type="password" placeholder="Password" value="password123" />
+      </div>
+    </div>
+    <div class="forgot-row"><span class="forgot-link">Forgot password?</span></div>
+    <button class="login-btn" onclick="showScreen('home')">Log In</button>
+    <div class="social-label">Or continue with</div>
+    <div class="social-row">
+      <div class="social-btn" onclick="showScreen('home')"><span class="g-color" style="font-weight:800;font-size:14px;">G</span> Google</div>
+      <div class="social-btn" onclick="showScreen('home')"><span class="ms-color">⊞</span> Microsoft</div>
+      <div class="social-btn" onclick="showScreen('home')"><span class="fb-color" style="font-weight:800;">f</span> Facebook</div>
+    </div>
+    <div class="signup-row">New here? <span class="signup-link">Create a free account →</span></div>
+    <div class="terms-text">By signing in you agree to our <span>Terms of Service</span> and <span>Privacy Policy</span>.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 2 — HOME / TODAY
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-home">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">📶 🔋</div>
+  </div>
+  <div class="home-header">
+    <div>
+      <div class="home-greeting">Good morning, Rob 👋</div>
+      <div class="home-date">Sunday,<br>Mar 8</div>
+    </div>
+    <div class="avatar">RA</div>
+  </div>
+
+  <div class="scroll-area">
+    <div class="xp-strip">
+      <div class="xp-icon">⚡</div>
+      <div class="xp-info">
+        <div class="xp-lbl">Your XP</div>
+        <div class="xp-row">
+          <div class="xp-pts">1,240 pts</div>
+          <div class="xp-lvl">Level 7</div>
+        </div>
+        <div class="xp-bar-bg"><div class="xp-bar-fill"></div></div>
+      </div>
+    </div>
+
+    <div class="section-label">My Stacks</div>
+    <div class="stacks-scroll">
+      <div class="stack-pill selected">
+        <div class="stack-pill-icon" style="background:#EAF5EC;">🌅</div>
+        <div class="stack-pill-name">Morning</div>
+      </div>
+      <div class="stack-pill">
+        <div class="stack-pill-icon" style="background:#FFF4EC;">💪</div>
+        <div class="stack-pill-name">Workout</div>
+      </div>
+      <div class="stack-pill">
+        <div class="stack-pill-icon" style="background:#FEF9EC;">🧠</div>
+        <div class="stack-pill-name">Focus</div>
+      </div>
+      <div class="stack-pill">
+        <div class="stack-pill-icon" style="background:#EAF5EC;">🌙</div>
+        <div class="stack-pill-name">Evening</div>
+      </div>
+      <div class="stack-pill" onclick="showScreen('build')">
+        <div class="stack-pill-icon" style="background:#F5F5F5;">＋</div>
+        <div class="stack-pill-name">Add</div>
+      </div>
+    </div>
+
+    <div class="card progress-summary" style="margin:0 24px 20px;padding:16px 18px;">
+      <div class="prog-header">
+        <div class="prog-title">Morning Stack</div>
+        <div class="prog-pct">3 / 6 done</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:50%;background:var(--orange);animation:growBar 1s 0.6s ease both;transform-origin:left;"></div></div>
+      <div class="prog-sub"><span>45%</span> complete · Keep going — you're halfway there 🔥</div>
+    </div>
+
+    <div class="section-label">Today's Bricks</div>
+    <div class="habits-list">
+      <div class="brick-card done" onclick="toggleBrick(this)">
+        <div class="brick-icon-wrap" style="background:#EAF5EC;">💧</div>
+        <div class="brick-info">
+          <div class="brick-name">Drink Water</div>
+          <div class="brick-meta"><span class="brick-tag" style="background:#EAF5EC;color:#264D2C;">Morning</span><span class="brick-xp">+10 XP</span></div>
+        </div>
+        <div class="brick-check"><svg width="13" height="13" viewBox="0 0 13 13"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="brick-card done" onclick="toggleBrick(this)">
+        <div class="brick-icon-wrap" style="background:#EAF5EC;">📖</div>
+        <div class="brick-info">
+          <div class="brick-name">Read 10 Minutes</div>
+          <div class="brick-meta"><span class="brick-tag" style="background:#EAF5EC;color:#264D2C;">Morning</span><span class="brick-xp">+10 XP</span></div>
+        </div>
+        <div class="brick-check"><svg width="13" height="13" viewBox="0 0 13 13"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="brick-card done" onclick="toggleBrick(this)">
+        <div class="brick-icon-wrap" style="background:#EAF5EC;">🙏</div>
+        <div class="brick-info">
+          <div class="brick-name">Pray / Meditate</div>
+          <div class="brick-meta"><span class="brick-tag" style="background:#EAF5EC;color:#264D2C;">Morning</span><span class="brick-xp">+10 XP</span></div>
+        </div>
+        <div class="brick-check"><svg width="13" height="13" viewBox="0 0 13 13"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="brick-card" onclick="toggleBrick(this)">
+        <div class="brick-icon-wrap" style="background:#FFF4EC;">🧘</div>
+        <div class="brick-info">
+          <div class="brick-name">Stretch</div>
+          <div class="brick-meta"><span class="brick-tag" style="background:#FFF4EC;color:#D95E1D;">Morning</span><span class="brick-xp">+10 XP</span></div>
+        </div>
+        <div class="brick-check"><svg width="13" height="13" viewBox="0 0 13 13"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="brick-card" onclick="toggleBrick(this)">
+        <div class="brick-icon-wrap" style="background:#FEF9EC;">✍️</div>
+        <div class="brick-info">
+          <div class="brick-name">Journal</div>
+          <div class="brick-meta"><span class="brick-tag" style="background:#FEF9EC;color:#E8A834;">Morning</span><span class="brick-xp">+15 XP</span></div>
+        </div>
+        <div class="brick-check"><svg width="13" height="13" viewBox="0 0 13 13"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+      <div class="brick-card" onclick="toggleBrick(this)">
+        <div class="brick-icon-wrap" style="background:#FEF9EC;">📋</div>
+        <div class="brick-info">
+          <div class="brick-name">Plan Tomorrow</div>
+          <div class="brick-meta"><span class="brick-tag" style="background:#FEF9EC;color:#E8A834;">Morning</span><span class="brick-xp">+10 XP</span></div>
+        </div>
+        <div class="brick-check"><svg width="13" height="13" viewBox="0 0 13 13"><path d="M2 6.5L5 9.5L11 3.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+
+    <div class="replacement-banner">
+      <div class="rep-left">
+        <div class="rep-old">Scroll IG</div>
+        <div class="rep-arrow">↓</div>
+        <div class="rep-new">📖 Read</div>
+      </div>
+      <div class="rep-info">
+        <div class="rep-lbl">🔄 Replacement Brick</div>
+        <div class="rep-title">Swapped the scroll</div>
+        <div class="rep-sub">7-day streak on this swap</div>
+      </div>
+    </div>
+
+    <div class="streak-row">
+      <div class="streak-pill">🔥 12-day streak</div>
+      <div class="streak-pill">🧱 1,240 bricks laid</div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="showScreen('home')"><div class="nav-icon active-dot">🏠</div><div class="nav-label">Today</div></div>
+    <div class="nav-item" onclick="showScreen('stacks')"><div class="nav-icon">🧱</div><div class="nav-label">Stacks</div></div>
+    <div class="nav-item" onclick="showScreen('build')"><div class="nav-icon">＋</div><div class="nav-label">Build</div></div>
+    <div class="nav-item" onclick="showScreen('journal')"><div class="nav-icon">📓</div><div class="nav-label">Journal</div></div>
+    <div class="nav-item" onclick="showScreen('profile')"><div class="nav-icon">📊</div><div class="nav-label">Profile</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 3 — MY STACKS
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-stacks">
+  <div class="status-bar"><span class="time">9:41</span><div class="status-icons">📶 🔋</div></div>
+  <div class="stacks-header">
+    <div class="page-title">My Stacks</div>
+    <div class="add-btn" onclick="showScreen('build')">＋</div>
+  </div>
+  <div class="scroll-area">
+    <div class="summary-strip">
+      <div class="summary-card"><div class="summary-num">4</div><div class="summary-lbl">Stacks</div></div>
+      <div class="summary-card"><div class="summary-num">18</div><div class="summary-lbl">Bricks</div></div>
+      <div class="summary-card"><div class="summary-num">🔥 12</div><div class="summary-lbl">Streak</div></div>
+    </div>
+    <div class="section-label">Active Stacks</div>
+    <div class="stacks-list">
+      <div class="stack-card" onclick="showScreen('build')">
+        <div class="stack-card-header">
+          <div class="stack-emoji" style="background:#EAF5EC;">🌅</div>
+          <div>
+            <div class="stack-card-name">Morning Stack</div>
+            <div class="stack-card-count">6 bricks · Daily</div>
+          </div>
+          <div class="stack-menu">···</div>
+        </div>
+        <div class="stack-prog-row"><div class="stack-prog-lbl">Today's progress</div><div class="stack-prog-pct">3/6 done</div></div>
+        <div class="progress-track"><div class="progress-fill" style="width:50%;background:var(--orange);animation:growBar 1s 0.2s ease both;transform-origin:left;"></div></div>
+        <div class="stack-bricks-preview">
+          <span class="brick-tag" style="background:#EAF5EC;color:#264D2C;">💧 Water</span>
+          <span class="brick-tag" style="background:#EAF5EC;color:#264D2C;">📖 Read</span>
+          <span class="brick-tag" style="background:#EAF5EC;color:#264D2C;">🙏 Pray</span>
+          <span class="brick-tag" style="background:#F5F5F5;color:#6B7280;">🧘 Stretch</span>
+          <span class="brick-tag" style="background:#F5F5F5;color:#6B7280;">+2 more</span>
+        </div>
+        <div class="stack-streak">🔥 <span>12-day streak</span> · Best: 21 days</div>
+      </div>
+      <div class="stack-card" onclick="showScreen('build')">
+        <div class="stack-card-header">
+          <div class="stack-emoji" style="background:#FFF4EC;">💪</div>
+          <div><div class="stack-card-name">Workout Stack</div><div class="stack-card-count">4 bricks · Mon / Wed / Fri</div></div>
+          <div class="stack-menu">···</div>
+        </div>
+        <div class="stack-prog-row"><div class="stack-prog-lbl">Today's progress</div><div class="stack-prog-pct">0/4 done</div></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%;"></div></div>
+        <div class="stack-bricks-preview">
+          <span class="brick-tag" style="background:#FFF4EC;color:#D95E1D;">🏃 Cardio</span>
+          <span class="brick-tag" style="background:#FFF4EC;color:#D95E1D;">🏋️ Lift</span>
+          <span class="brick-tag" style="background:#F5F5F5;color:#6B7280;">🧘 Cool down</span>
+        </div>
+        <div class="stack-streak">🔥 <span>8-day streak</span> · Best: 14 days</div>
+      </div>
+      <div class="stack-card" onclick="showScreen('build')">
+        <div class="stack-card-header">
+          <div class="stack-emoji" style="background:#FEF9EC;">🧠</div>
+          <div><div class="stack-card-name">Productivity Stack</div><div class="stack-card-count">5 bricks · Weekdays</div></div>
+          <div class="stack-menu">···</div>
+        </div>
+        <div class="stack-prog-row"><div class="stack-prog-lbl">Today's progress</div><div class="stack-prog-pct" style="color:var(--green);">5/5 done</div></div>
+        <div class="progress-track"><div class="progress-fill" style="width:100%;background:var(--green);animation:growBar 1s 0.3s ease both;transform-origin:left;"></div></div>
+        <div class="stack-bricks-preview"><span class="brick-tag" style="background:#EAF5EC;color:#264D2C;">✅ Complete</span></div>
+        <div class="stack-streak">🔥 <span>5-day streak</span> · Best: 9 days</div>
+      </div>
+      <div class="stack-card" onclick="showScreen('build')">
+        <div class="stack-card-header">
+          <div class="stack-emoji" style="background:#F0EAF5;">🌙</div>
+          <div><div class="stack-card-name">Evening Reset</div><div class="stack-card-count">3 bricks · Daily</div></div>
+          <div class="stack-menu">···</div>
+        </div>
+        <div class="stack-prog-row"><div class="stack-prog-lbl">Today's progress</div><div class="stack-prog-pct">0/3 done</div></div>
+        <div class="progress-track"><div class="progress-fill" style="width:0%;"></div></div>
+        <div class="stack-bricks-preview">
+          <span class="brick-tag" style="background:#F0EAF5;color:#6B4FA0;">📋 Plan</span>
+          <span class="brick-tag" style="background:#F0EAF5;color:#6B4FA0;">✍️ Journal</span>
+          <span class="brick-tag" style="background:#F0EAF5;color:#6B4FA0;">📵 No screens</span>
+        </div>
+        <div class="stack-streak">🔥 <span>3-day streak</span> · Best: 7 days</div>
+      </div>
+    </div>
+    <div class="add-stack-cta" onclick="showScreen('build')">
+      <div class="add-cta-icon">＋</div>
+      <div class="add-cta-text">Build a new stack</div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Today</div></div>
+    <div class="nav-item active" onclick="showScreen('stacks')"><div class="nav-icon active-dot">🧱</div><div class="nav-label">Stacks</div></div>
+    <div class="nav-item" onclick="showScreen('build')"><div class="nav-icon">＋</div><div class="nav-label">Build</div></div>
+    <div class="nav-item" onclick="showScreen('journal')"><div class="nav-icon">📓</div><div class="nav-label">Journal</div></div>
+    <div class="nav-item" onclick="showScreen('profile')"><div class="nav-icon">📊</div><div class="nav-label">Profile</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 4 — BUILD STACK
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-build">
+  <div class="status-bar"><span class="time">9:41</span><div class="status-icons">📶 🔋</div></div>
+  <div class="top-bar">
+    <div class="back-btn" onclick="showScreen('stacks')">←</div>
+    <div class="top-bar-title">Build Stack</div>
+    <div class="save-btn" onclick="showScreen('stacks')">Save</div>
+  </div>
+  <div class="scroll-area">
+    <div class="card identity-card">
+      <div class="identity-row">
+        <div class="emoji-picker">🌅</div>
+        <div style="flex:1;">
+          <div class="field-label">Stack Name</div>
+          <input class="text-input" value="Morning Stack" />
+        </div>
+      </div>
+      <div class="field-label" style="margin-bottom:7px;">Frequency</div>
+      <div class="freq-pills">
+        <div class="freq-pill active">Daily</div>
+        <div class="freq-pill" onclick="selectFreq(this)">Weekdays</div>
+        <div class="freq-pill" onclick="selectFreq(this)">Weekends</div>
+        <div class="freq-pill" onclick="selectFreq(this)">Custom</div>
+      </div>
+    </div>
+    <div class="section-label">Bricks in this Stack</div>
+    <div class="bricks-list">
+      <div class="brick-row">
+        <div class="drag-handle">⠿</div>
+        <div class="brick-icon-sm" style="background:#EAF5EC;">💧</div>
+        <div style="flex:1;"><div class="brick-row-name">Drink Water</div><div class="brick-row-meta"><span class="diff-badge diff-easy">Easy</span><span class="xp-small">+10 XP</span></div></div>
+        <div class="brick-delete">✕</div>
+      </div>
+      <div class="brick-row">
+        <div class="drag-handle">⠿</div>
+        <div class="brick-icon-sm" style="background:#EAF5EC;">📖</div>
+        <div style="flex:1;"><div class="brick-row-name">Read 10 Minutes</div><div class="brick-row-meta"><span class="diff-badge diff-med">Medium</span><span class="xp-small">+15 XP</span></div></div>
+        <div class="brick-delete">✕</div>
+      </div>
+      <div class="brick-row">
+        <div class="drag-handle">⠿</div>
+        <div class="brick-icon-sm" style="background:#EAF5EC;">🙏</div>
+        <div style="flex:1;"><div class="brick-row-name">Pray / Meditate</div><div class="brick-row-meta"><span class="diff-badge diff-med">Medium</span><span class="xp-small">+15 XP</span></div></div>
+        <div class="brick-delete">✕</div>
+      </div>
+      <div class="brick-row">
+        <div class="drag-handle">⠿</div>
+        <div class="brick-icon-sm" style="background:#FFF4EC;">🧘</div>
+        <div style="flex:1;"><div class="brick-row-name">Stretch</div><div class="brick-row-meta"><span class="diff-badge diff-hard">Hard</span><span class="xp-small">+20 XP</span></div></div>
+        <div class="brick-delete">✕</div>
+      </div>
+    </div>
+    <div class="add-brick-btn">
+      <div class="add-brick-btn-icon">＋</div>
+      <div class="add-brick-btn-text">Add a brick</div>
+    </div>
+    <div class="rep-config">
+      <div class="rep-config-header">
+        <span style="font-size:16px;">🔄</span>
+        <div class="rep-config-title">Replacement Habit</div>
+        <div class="rep-config-badge">Signature Feature</div>
+      </div>
+      <div class="rep-fields">
+        <div class="rep-field"><div class="field-label">Replace this</div><input class="rep-input" value="Scroll IG" /></div>
+        <div style="font-size:18px;flex-shrink:0;">→</div>
+        <div class="rep-field"><div class="field-label">With this</div><input class="rep-input" value="Read 10 min" /></div>
+      </div>
+      <div class="rep-hint">💡 Swap a negative habit with something constructive. You'll track your streak on this swap.</div>
+    </div>
+    <div class="card diff-summary">
+      <div class="diff-summary-title">Stack XP Breakdown</div>
+      <div class="diff-bars">
+        <div class="diff-bar-row"><div class="diff-bar-label" style="color:#264D2C;">Easy</div><div class="diff-bar-track"><div class="diff-bar-fill" style="width:30%;background:#C6E2CF;animation-delay:0.2s;"></div></div><div class="diff-bar-pts">+10 XP</div></div>
+        <div class="diff-bar-row"><div class="diff-bar-label" style="color:#E8A834;">Med</div><div class="diff-bar-track"><div class="diff-bar-fill" style="width:60%;background:#E8A834;animation-delay:0.3s;"></div></div><div class="diff-bar-pts">+30 XP</div></div>
+        <div class="diff-bar-row"><div class="diff-bar-label" style="color:#D95E1D;">Hard</div><div class="diff-bar-track"><div class="diff-bar-fill" style="width:45%;background:#D95E1D;animation-delay:0.4s;"></div></div><div class="diff-bar-pts">+20 XP</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Today</div></div>
+    <div class="nav-item" onclick="showScreen('stacks')"><div class="nav-icon">🧱</div><div class="nav-label">Stacks</div></div>
+    <div class="nav-item active" onclick="showScreen('build')"><div class="nav-icon active-dot">＋</div><div class="nav-label">Build</div></div>
+    <div class="nav-item" onclick="showScreen('journal')"><div class="nav-icon">📓</div><div class="nav-label">Journal</div></div>
+    <div class="nav-item" onclick="showScreen('profile')"><div class="nav-icon">📊</div><div class="nav-label">Profile</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 5 — JOURNAL
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-journal">
+  <div class="status-bar"><span class="time">9:41</span><div class="status-icons">📶 🔋</div></div>
+  <div class="journal-header">
+    <div class="page-title">Journal</div>
+    <div class="journal-sub">Reflect. Grow. Brick by brick.</div>
+  </div>
+  <div class="scroll-area">
+    <div class="prompt-card">
+      <div class="prompt-label">✨ Today's Prompt</div>
+      <div class="prompt-text" id="prompt-text">"What's one small win from today that deserves more credit than you're giving it?"</div>
+      <div class="prompt-refresh" onclick="cyclePrompt()">
+        <div class="prompt-refresh-icon">🔀</div>
+        <div class="prompt-refresh-text">New prompt</div>
+      </div>
+    </div>
+    <div class="card entry-card">
+      <div class="entry-date-row">
+        <div class="entry-date">Sunday, March 8</div>
+        <div class="mood-row">
+          <div class="mood-btn" onclick="selectMood(this)">😔</div>
+          <div class="mood-btn" onclick="selectMood(this)">😐</div>
+          <div class="mood-btn selected" onclick="selectMood(this)">🙂</div>
+          <div class="mood-btn" onclick="selectMood(this)">😄</div>
+          <div class="mood-btn" onclick="selectMood(this)">🔥</div>
+        </div>
+      </div>
+      <textarea class="entry-textarea" id="journal-entry" oninput="updateCharCount(this)">Got through 3 out of 6 bricks this morning. Wasn't perfect, but I showed up. Prayed, read, drank water. The stretch is getting easier. Small wins are starting to feel real.</textarea>
+      <div class="entry-footer">
+        <div class="char-count" id="char-count">168 / 500</div>
+        <div class="save-entry-btn">Save Entry</div>
+      </div>
+    </div>
+    <div class="tags-row">
+      <div class="section-label" style="padding:0 0 9px;">How did today feel?</div>
+      <div class="tags-wrap">
+        <div class="refl-tag on" onclick="toggleTag(this)">✅ Showed up</div>
+        <div class="refl-tag on" onclick="toggleTag(this)">🧘 Calm</div>
+        <div class="refl-tag off" onclick="toggleTag(this)">😤 Struggled</div>
+        <div class="refl-tag off" onclick="toggleTag(this)">💪 Strong</div>
+        <div class="refl-tag on" onclick="toggleTag(this)">🙏 Grateful</div>
+        <div class="refl-tag off" onclick="toggleTag(this)">😴 Tired</div>
+        <div class="refl-tag off" onclick="toggleTag(this)">🔥 Motivated</div>
+        <div class="refl-tag off" onclick="toggleTag(this)">🌱 Growing</div>
+      </div>
+    </div>
+    <div class="section-label">Past Entries</div>
+    <div class="past-entries">
+      <div class="past-entry">
+        <div class="past-entry-header"><div class="past-entry-date">Saturday, March 7</div><span>😄</span></div>
+        <div class="past-entry-text">Full stack day. Hit every brick. Felt unstoppable by noon — the kind of morning that reminds me why I started this.</div>
+        <div class="past-entry-tags"><span class="past-entry-tag">💪 Strong</span><span class="past-entry-tag">🔥 Motivated</span><span class="past-entry-tag">✅ Showed up</span></div>
+      </div>
+      <div class="past-entry">
+        <div class="past-entry-header"><div class="past-entry-date">Friday, March 6</div><span>😐</span></div>
+        <div class="past-entry-text">Rough day at work. Only got 2 bricks done. But I did them. Starting to see that showing up imperfectly still counts.</div>
+        <div class="past-entry-tags"><span class="past-entry-tag">😤 Struggled</span><span class="past-entry-tag">✅ Showed up</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Today</div></div>
+    <div class="nav-item" onclick="showScreen('stacks')"><div class="nav-icon">🧱</div><div class="nav-label">Stacks</div></div>
+    <div class="nav-item" onclick="showScreen('build')"><div class="nav-icon">＋</div><div class="nav-label">Build</div></div>
+    <div class="nav-item active" onclick="showScreen('journal')"><div class="nav-icon active-dot">📓</div><div class="nav-label">Journal</div></div>
+    <div class="nav-item" onclick="showScreen('profile')"><div class="nav-icon">📊</div><div class="nav-label">Profile</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 6 — PROFILE
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-profile">
+  <div class="profile-hero">
+    <div class="status-bar" style="padding:0 0 12px;color:rgba(255,255,255,0.7);">
+      <span class="time" style="color:white;">9:41</span>
+      <div class="status-icons" style="color:white;">📶 🔋</div>
+    </div>
+    <div class="profile-hero-top">
+      <div class="profile-hero-title">My Progress</div>
+      <div class="settings-btn">⚙️</div>
+    </div>
+    <div class="profile-row">
+      <div class="avatar-lg">RA</div>
+      <div>
+        <div class="profile-name">Rob Anderson</div>
+        <div class="profile-handle">@robanderson</div>
+        <div class="profile-since">Building since Jan 2025</div>
+        <div class="level-badge">⚡ Level 7 — Stack Builder</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-area" style="padding-top:16px;">
+    <div class="card xp-card">
+      <div class="xp-card-head">
+        <div><div class="xp-pts-lbl">Total XP Earned</div><div class="xp-total">1,240 pts</div></div>
+        <div style="text-align:right;"><div class="xp-pts-lbl">Next level</div><div class="xp-next-lvl">Level 8</div></div>
+      </div>
+      <div class="level-row"><span>Level 7</span><span>1,240 / 2,000 XP</span></div>
+      <div class="xp-bar-bg2"><div class="xp-bar-fill2"></div></div>
+      <div class="xp-next-text">760 XP to reach <span>Level 8 — Habit Architect</span></div>
+    </div>
+
+    <div class="section-label">Your Numbers</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-num">12</div><div class="stat-lbl">Day Streak</div></div>
+      <div class="stat-card"><div class="stat-icon">🧱</div><div class="stat-num">1,240</div><div class="stat-lbl">Bricks Laid</div></div>
+      <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-num">4</div><div class="stat-lbl">Active Stacks</div></div>
+      <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-num">21</div><div class="stat-lbl">Best Streak</div></div>
+    </div>
+
+    <div class="section-label">This Week</div>
+    <div class="card weekly-card">
+      <div class="weekly-title">Daily Completion</div>
+      <div class="week-bars">
+        <div class="day-col"><div class="day-bar-wrap"><div class="day-bar" style="height:80%;background:var(--green);animation-delay:0.05s;"></div></div><div class="day-label">M</div></div>
+        <div class="day-col"><div class="day-bar-wrap"><div class="day-bar" style="height:60%;background:var(--green);animation-delay:0.1s;"></div></div><div class="day-label">T</div></div>
+        <div class="day-col"><div class="day-bar-wrap"><div class="day-bar" style="height:100%;background:var(--orange);animation-delay:0.15s;"></div></div><div class="day-label">W</div></div>
+        <div class="day-col"><div class="day-bar-wrap"><div class="day-bar" style="height:40%;background:var(--green);animation-delay:0.2s;"></div></div><div class="day-label">T</div></div>
+        <div class="day-col"><div class="day-bar-wrap"><div class="day-bar" style="height:90%;background:var(--green);animation-delay:0.25s;"></div></div><div class="day-label">F</div></div>
+        <div class="day-col"><div class="day-bar-wrap"><div class="day-bar" style="height:100%;background:var(--orange);animation-delay:0.3s;"></div></div><div class="day-label">S</div></div>
+        <div class="day-col"><div class="day-bar-wrap"><div class="day-bar" style="height:45%;background:var(--mint);border:2px solid var(--green);animation-delay:0.35s;"></div></div><div class="day-label" style="color:var(--green);">S</div></div>
+      </div>
+      <div class="weekly-sum-row">
+        <div class="wsr-item"><div class="wsr-num">38</div><div class="wsr-lbl">Bricks</div></div>
+        <div class="wsr-item"><div class="wsr-num">73%</div><div class="wsr-lbl">Avg Done</div></div>
+        <div class="wsr-item"><div class="wsr-num">+380</div><div class="wsr-lbl">XP This Wk</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Milestones</div>
+    <div class="milestones-list">
+      <div class="milestone-row"><div class="milestone-icon" style="background:#EAF5EC;">🏆</div><div style="flex:1;"><div class="milestone-name">First Stack Complete</div><div class="milestone-sub">Completed all bricks in a stack</div></div><span class="badge-done">Earned</span></div>
+      <div class="milestone-row"><div class="milestone-icon" style="background:#EAF5EC;">🔥</div><div style="flex:1;"><div class="milestone-name">10-Day Streak</div><div class="milestone-sub">Kept the momentum for 10 days straight</div></div><span class="badge-done">Earned</span></div>
+      <div class="milestone-row"><div class="milestone-icon" style="background:#F5F5F5;">🧱</div><div style="flex:1;"><div class="milestone-name">Master Builder</div><div class="milestone-sub">Lay 2,000 bricks total</div></div><span class="badge-locked">760 away</span></div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Today</div></div>
+    <div class="nav-item" onclick="showScreen('stacks')"><div class="nav-icon">🧱</div><div class="nav-label">Stacks</div></div>
+    <div class="nav-item" onclick="showScreen('build')"><div class="nav-icon">＋</div><div class="nav-label">Build</div></div>
+    <div class="nav-item" onclick="showScreen('journal')"><div class="nav-icon">📓</div><div class="nav-label">Journal</div></div>
+    <div class="nav-item active" onclick="showScreen('profile')"><div class="nav-icon active-dot">📊</div><div class="nav-label">Profile</div></div>
+  </div>
+</div>
+
+</div><!-- /device -->
+
+<script>
+// ─── NAVIGATION ────────────────────────────────────────────
+const screens = ['login','home','stacks','build','journal','profile'];
+
+function showScreen(id) {
+  const current = document.querySelector('.screen.active');
+  const next = document.getElementById('screen-' + id);
+  if (!next || current === next) return;
+
+  current.classList.add('exit-left');
+  current.classList.remove('active');
+
+  setTimeout(() => { current.classList.remove('exit-left'); }, 280);
+
+  next.style.transform = 'translateX(30px)';
+  next.style.opacity = '0';
+  next.classList.add('active');
+
+  // Scroll to top on new screen
+  const scrollArea = next.querySelector('.scroll-area');
+  if (scrollArea) scrollArea.scrollTop = 0;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      next.style.transform = '';
+      next.style.opacity = '';
+    });
+  });
+}
+
+// ─── BRICK TOGGLE ───────────────────────────────────────────
+function toggleBrick(card) {
+  card.classList.toggle('done');
+}
+
+// ─── MOOD SELECTOR ──────────────────────────────────────────
+function selectMood(btn) {
+  btn.closest('.mood-row').querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ─── JOURNAL CHAR COUNT ─────────────────────────────────────
+function updateCharCount(ta) {
+  const count = ta.value.length;
+  document.getElementById('char-count').textContent = count + ' / 500';
+}
+
+// ─── PROMPT CYCLE ───────────────────────────────────────────
+const prompts = [
+  '"What\'s one small win from today that deserves more credit than you\'re giving it?"',
+  '"What habit felt hardest today — and why do you think that is?"',
+  '"If your future self could see today\'s effort, what would they say?"',
+  '"What\'s one thing you\'d do differently tomorrow?"',
+  '"What are you building yourself into, brick by brick?"',
+];
+let promptIndex = 0;
+function cyclePrompt() {
+  promptIndex = (promptIndex + 1) % prompts.length;
+  const el = document.getElementById('prompt-text');
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(6px)';
+  setTimeout(() => {
+    el.textContent = prompts[promptIndex];
+    el.style.transition = 'opacity 0.3s, transform 0.3s';
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  }, 200);
+}
+
+// ─── REFLECTION TAG TOGGLE ─────────────────────────────────
+function toggleTag(tag) {
+  const isOn = tag.classList.contains('on');
+  tag.classList.toggle('on', !isOn);
+  tag.classList.toggle('off', isOn);
+}
+
+// ─── FREQUENCY PILL SELECTOR ───────────────────────────────
+function selectFreq(pill) {
+  pill.closest('.freq-pills').querySelectorAll('.freq-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+}
+</script>
+</body>
+</html>
