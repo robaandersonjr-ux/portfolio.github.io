@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Habit Stacking · Robert Anderson UX</title>
+  <title>Focus Flow · Robert Anderson UX</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
@@ -172,8 +172,6 @@
       border: 1px solid var(--border);
     }
     .btn-outline:hover { color: var(--white); border-color: rgba(45, 111, 242, 0.5); }
-
-    /* icon within btn */
     .btn svg { flex-shrink: 0; }
 
     /* ─── META STRIP ─── */
@@ -219,7 +217,6 @@
       position: relative;
       overflow: hidden;
     }
-    /* brick pattern */
     .hero-mockup::before {
       content: '';
       position: absolute;
@@ -269,13 +266,26 @@
     .p-bar { height: 6px; border-radius: 4px; background: var(--electric); opacity: 0.7; }
     .p-bar-sm { width: 60%; }
     .p-bar-lg { width: 90%; }
-    .p-brick {
-      height: 28px;
+    .p-timer {
+      height: 48px;
+      border-radius: 50%;
+      width: 48px;
+      margin: 0.5rem auto;
+      border: 3px solid var(--electric);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      color: var(--electric);
+      font-weight: 700;
+    }
+    .p-task {
+      height: 20px;
       border-radius: 6px;
-      background: linear-gradient(90deg, var(--burnt) 0%, rgba(224,92,42,0.5) 100%);
+      background: rgba(45,111,242,0.25);
       margin-top: 0.3rem;
     }
-    .p-brick-sm { height: 20px; opacity: 0.6; }
+    .p-task-sm { height: 14px; opacity: 0.5; }
     .p-dot-row {
       display: flex;
       gap: 0.3rem;
@@ -487,9 +497,7 @@
       from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .fade-up {
-      animation: fadeUp 0.7s ease both;
-    }
+    .fade-up { animation: fadeUp 0.7s ease both; }
     .fade-up-1 { animation-delay: 0.1s; }
     .fade-up-2 { animation-delay: 0.22s; }
     .fade-up-3 { animation-delay: 0.34s; }
@@ -524,18 +532,17 @@
   <!-- ─── HERO ─── -->
   <section class="hero">
     <div class="hero-eyebrow fade-up fade-up-1">Case Study · Mobile UX</div>
-    <h1 class="fade-up fade-up-2">Habit Stacking <em>App</em></h1>
+    <h1 class="fade-up fade-up-2">Focus <em>Flow</em></h1>
     <p class="hero-sub fade-up fade-up-3">
-      A behavior-driven mobile experience that helps users build lasting routines —
-      one brick at a time.
+      A mobile productivity app that combines task management, Pomodoro focus sessions,
+      and progress tracking to help users combat procrastination and build better work habits.
     </p>
     <div class="cta-group fade-up fade-up-4">
-      <!-- Download PDF: update href to your actual PDF path -->
-      <a href="habit-stacking-portfolio__1_.pdf" download class="btn btn-primary">
+      <a href="Focus_Flow_Procrastination_Combat_App.pdf" download class="btn btn-primary">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M5 14l7 7 7-7"/><path d="M3 21h18"/></svg>
         Download Case Study PDF
       </a>
-      <a href="habit-stacking-prototype.html" target="_blank" class="btn btn-accent">
+      <a href="#" target="_blank" class="btn btn-accent">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         View Prototype
       </a>
@@ -545,10 +552,10 @@
       </a>
     </div>
     <div class="meta-strip fade-up fade-up-4">
-      <span><span class="meta-dot"></span> Role: UX Designer &amp; Researcher</span>
-      <span><span class="meta-dot"></span> Platform: iOS / Android</span>
-      <span><span class="meta-dot"></span> Duration: 6 Weeks</span>
-      <span><span class="meta-dot"></span> Status: Prototype Complete</span>
+      <span><span class="meta-dot"></span> Role: Product Designer &amp; Developer</span>
+      <span><span class="meta-dot"></span> Platform: Mobile Web App</span>
+      <span><span class="meta-dot"></span> Duration: 3 Weeks</span>
+      <span><span class="meta-dot"></span> Year: 2026</span>
     </div>
   </section>
 
@@ -557,13 +564,14 @@
     <div class="hero-frame-inner">
       <div class="hero-mockup">
         <div class="mockup-phones">
-          <!-- Phone 1 -->
+          <!-- Phone 1 — Task List -->
           <div class="phone phone-short">
             <div class="phone-inner">
               <div class="p-bar p-bar-sm"></div>
               <div class="p-bar p-bar-lg" style="opacity:0.3;"></div>
-              <div class="p-brick" style="margin-top:0.5rem;"></div>
-              <div class="p-brick p-brick-sm"></div>
+              <div class="p-task" style="margin-top:0.5rem;"></div>
+              <div class="p-task p-task-sm"></div>
+              <div class="p-task p-task-sm"></div>
               <div class="p-dot-row">
                 <div class="p-dot active"></div>
                 <div class="p-dot"></div>
@@ -571,15 +579,14 @@
               </div>
             </div>
           </div>
-          <!-- Phone 2 (center, tallest) -->
+          <!-- Phone 2 — Timer (center, tallest) -->
           <div class="phone phone-tall">
             <div class="phone-inner">
               <div class="p-bar p-bar-sm"></div>
-              <div class="p-bar p-bar-lg" style="opacity:0.3;"></div>
-              <div class="p-brick"></div>
-              <div class="p-brick p-brick-sm"></div>
-              <div class="p-brick p-brick-sm" style="opacity:0.4;"></div>
-              <div class="p-brick p-brick-sm" style="opacity:0.25;"></div>
+              <div class="p-timer">25:00</div>
+              <div class="p-task"></div>
+              <div class="p-task p-task-sm"></div>
+              <div class="p-task p-task-sm" style="opacity:0.4;"></div>
               <div class="p-dot-row">
                 <div class="p-dot"></div>
                 <div class="p-dot active"></div>
@@ -587,13 +594,13 @@
               </div>
             </div>
           </div>
-          <!-- Phone 3 -->
+          <!-- Phone 3 — Stats -->
           <div class="phone phone-short">
             <div class="phone-inner">
               <div class="p-bar p-bar-sm"></div>
               <div class="p-bar p-bar-lg" style="opacity:0.3;"></div>
-              <div class="p-brick" style="background: linear-gradient(90deg, var(--electric) 0%, rgba(45,111,242,0.5) 100%);"></div>
-              <div class="p-brick p-brick-sm" style="background: linear-gradient(90deg, var(--electric) 0%, rgba(45,111,242,0.5) 100%); opacity:0.6;"></div>
+              <div class="p-task" style="background: linear-gradient(90deg, var(--burnt) 0%, rgba(224,92,42,0.5) 100%);"></div>
+              <div class="p-task p-task-sm" style="background: linear-gradient(90deg, var(--burnt) 0%, rgba(224,92,42,0.5) 100%); opacity:0.6;"></div>
               <div class="p-dot-row">
                 <div class="p-dot"></div>
                 <div class="p-dot"></div>
@@ -614,17 +621,15 @@
       <div class="section-label">Overview</div>
       <h2 class="section-title">The Problem Worth Solving</h2>
       <p class="section-body">
-        Most habit-tracking apps focus on streaks and checkboxes — but they don't address
-        <em>why</em> habits break. Users quit not because they lack discipline, but because
-        the apps don't support them when life disrupts their routines. The Habit Stacking app
-        was designed to meet users where they are, using a "brick by brick" metaphor that
-        makes progress feel tangible, forgiving, and worth continuing.
+        Procrastination affects productivity and mental well-being, with users struggling to
+        maintain focus and track meaningful progress toward their goals. Most productivity tools
+        treat task management and focus separately — leaving users to juggle multiple apps with
+        no unified system for building consistent work habits.
       </p>
-
       <div class="insight-box">
-        <strong>Core Insight:</strong> The biggest drop-off happens not at Day 1, but at Day 3–7,
-        when the novelty fades and friction kicks in. The app's Replacement Brick system directly
-        addresses this failure point.
+        <strong>Core Insight:</strong> Users don't lack motivation — they lack structure. The gap
+        between knowing what to do and actually starting is where most productivity breaks down.
+        Focus Flow bridges that gap with timed, committed sessions.
       </div>
     </section>
 
@@ -637,23 +642,23 @@
       <div class="cards-grid">
         <div class="card">
           <div class="card-icon card-icon-blue">🎯</div>
-          <h3>Reduce Early Drop-Off</h3>
-          <p>Design a system that keeps users engaged through the critical first two weeks.</p>
+          <h3>Reduce Friction to Start</h3>
+          <p>Design a system that removes the psychological barrier to beginning a task with low-commitment, time-boxed sessions.</p>
         </div>
         <div class="card">
-          <div class="card-icon card-icon-burnt">🧱</div>
-          <h3>Make Progress Visible</h3>
-          <p>Give users a physical metaphor — building a wall of bricks — that communicates momentum.</p>
+          <div class="card-icon card-icon-burnt">⏱️</div>
+          <h3>Structured Focus Sessions</h3>
+          <p>Implement the Pomodoro Technique — 25-minute intervals backed by research — as the core interaction model.</p>
         </div>
         <div class="card">
-          <div class="card-icon card-icon-blue">🔄</div>
-          <h3>Handle Failure Gracefully</h3>
-          <p>Introduce a Replacement Brick mechanic so a missed day feels like a pivot, not a failure.</p>
+          <div class="card-icon card-icon-blue">📊</div>
+          <h3>Visible Progress</h3>
+          <p>Give users a clear view of their productivity patterns through a stats dashboard that reinforces momentum.</p>
         </div>
         <div class="card">
-          <div class="card-icon card-icon-burnt">⚡</div>
-          <h3>Minimize Onboarding Friction</h3>
-          <p>Get users to their first habit logged in under 90 seconds from first launch.</p>
+          <div class="card-icon card-icon-burnt">🏆</div>
+          <h3>Motivational Reinforcement</h3>
+          <p>Introduce achievement mechanics that celebrate milestones and build the habit loop through immediate positive feedback.</p>
         </div>
       </div>
     </section>
@@ -662,40 +667,78 @@
 
     <!-- Research -->
     <section>
-      <div class="section-label">Research</div>
+      <div class="section-label">Research &amp; Context</div>
       <h2 class="section-title">Understanding the User</h2>
       <p class="section-body">
-        I conducted competitive analysis across five leading habit apps and synthesized
-        themes from 12 user interviews with adults aged 22–40 who had tried and abandoned
-        at least two habit apps in the previous year.
+        The primary audience includes students, freelancers, and remote workers who need structure
+        in their workday but lack external accountability. These users value flexibility but struggle
+        with self-discipline when working independently.
       </p>
       <div class="process-list" style="margin-top: 2rem;">
         <div class="process-step">
           <div class="step-num">01</div>
           <div class="step-content">
-            <h4>Competitive Analysis</h4>
-            <p>Audited Habitica, Streaks, Fabulous, Finch, and Productive — mapping where each lost users and what gamification mechanisms they used.</p>
+            <h4>The Pomodoro Technique</h4>
+            <p>Research validates that 25-minute focused intervals significantly improve concentration and reduce mental fatigue. Long enough for deep work, short enough to feel achievable.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="step-num">02</div>
           <div class="step-content">
-            <h4>User Interviews (n=12)</h4>
-            <p>Semi-structured conversations exploring habit motivations, failure triggers, and what "success" looked like. Synthesized into an affinity map with 4 major themes.</p>
+            <h4>Competitive Landscape</h4>
+            <p>While many timer apps and task managers exist separately, few combine both with meaningful progress tracking. The opportunity was an integrated experience addressing the full productivity workflow.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="step-num">03</div>
           <div class="step-content">
-            <h4>Persona Development</h4>
-            <p>Defined two primary personas: The Restarter (rebuilding after burnout) and The Optimizer (adding structure to an already-productive life).</p>
+            <h4>User Pain Points</h4>
+            <p>Difficulty maintaining focus for extended periods, lack of a structured approach to task management, no visibility into productivity patterns, and no motivational reinforcement.</p>
           </div>
         </div>
         <div class="process-step">
           <div class="step-num">04</div>
           <div class="step-content">
-            <h4>How Might We Statements</h4>
-            <p>Reframed research insights into four HMW statements that guided the ideation phase and kept the team anchored to user needs.</p>
+            <h4>Mobile-First Rationale</h4>
+            <p>Productivity happens everywhere — coffee shops, libraries, commutes. A mobile-first approach ensures users can maintain their focus routine regardless of location.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Design Process -->
+    <section>
+      <div class="section-label">Design Process</div>
+      <h2 class="section-title">How It Came Together</h2>
+      <div class="process-list">
+        <div class="process-step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h4>Feature Planning</h4>
+            <p>Identified core features to support the full productivity workflow: authentication for data persistence, task management for planning, a timer for execution, and stats for reflection.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h4>Information Architecture</h4>
+            <p>Designed a hamburger menu navigation to keep the main dashboard clean and focused on the primary task — starting a focus session. All secondary features accessible through the menu.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h4>Visual Design Evolution</h4>
+            <p>Initially explored purple-pink gradients for a modern, energetic feel. After review, pivoted to flat #5271FF blue for better readability and a more focused, professional aesthetic.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <h4>Typography &amp; Branding</h4>
+            <p>Selected DM Sans for the wordmark — varied weights (300 for "focus", 400 for "flow") create visual rhythm while maintaining cohesion. The hourglass logo symbolizes time management and continuous momentum.</p>
           </div>
         </div>
       </div>
@@ -706,35 +749,28 @@
     <!-- Design System -->
     <section>
       <div class="section-label">Design System</div>
-      <h2 class="section-title">Brick by Brick Visual Language</h2>
+      <h2 class="section-title">Focus Flow Visual Language</h2>
       <p class="section-body">
-        The design system reflects the core metaphor. Colors signal state: Deep Green for
-        active habits, Burnt Orange for replacement bricks, Soft Mint for streaks, and
-        Golden Yellow for milestone celebrations. Every UI element reinforces the feeling
-        of building something real.
+        The design system was built around calm clarity. Flat Electric Blue (#5271FF) as the primary
+        color is psychologically associated with trust, stability, and focus — ideal for a productivity
+        tool. Burnt Orange provides motivational contrast for achievement states.
       </p>
-
-      <!-- Color palette display -->
       <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1.75rem;">
         <div style="flex:1; min-width:100px;">
-          <div style="height:60px; border-radius:10px; background:#2A7A4B; border:1px solid rgba(255,255,255,0.08);"></div>
-          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Deep Green<br>#2A7A4B</p>
+          <div style="height:60px; border-radius:10px; background:#5271FF; border:1px solid rgba(255,255,255,0.08);"></div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Electric Blue<br>#5271FF</p>
         </div>
         <div style="flex:1; min-width:100px;">
           <div style="height:60px; border-radius:10px; background:#E05C2A; border:1px solid rgba(255,255,255,0.08);"></div>
           <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Burnt Orange<br>#E05C2A</p>
         </div>
         <div style="flex:1; min-width:100px;">
-          <div style="height:60px; border-radius:10px; background:#9EDBC8; border:1px solid rgba(255,255,255,0.08);"></div>
-          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Soft Mint<br>#9EDBC8</p>
-        </div>
-        <div style="flex:1; min-width:100px;">
-          <div style="height:60px; border-radius:10px; background:#F5C842; border:1px solid rgba(255,255,255,0.08);"></div>
-          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Golden Yellow<br>#F5C842</p>
-        </div>
-        <div style="flex:1; min-width:100px;">
           <div style="height:60px; border-radius:10px; background:#0B1628; border:1px solid rgba(255,255,255,0.12);"></div>
           <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Deep Navy<br>#0B1628</p>
+        </div>
+        <div style="flex:1; min-width:100px;">
+          <div style="height:60px; border-radius:10px; background:#F4F7FF; border:1px solid rgba(255,255,255,0.08);"></div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Off White<br>#F4F7FF</p>
         </div>
       </div>
     </section>
@@ -747,24 +783,62 @@
       <h2 class="section-title">The Mechanics That Matter</h2>
       <div class="cards-grid">
         <div class="card">
-          <div class="card-icon card-icon-blue">🧱</div>
-          <h3>Brick Builder</h3>
-          <p>Each completed habit adds a brick to the user's visible wall. The wall becomes a personal artifact of consistency.</p>
+          <div class="card-icon card-icon-blue">✅</div>
+          <h3>Task Management</h3>
+          <p>Create tasks with three priority levels, add notes, and set due dates. Color-coded priorities and quick entry keep planning fast and clear.</p>
         </div>
         <div class="card">
-          <div class="card-icon card-icon-burnt">🔁</div>
-          <h3>Replacement Brick</h3>
-          <p>Miss a habit? Log a related micro-action instead. The wall keeps growing — a missed day is never a wasted day.</p>
+          <div class="card-icon card-icon-burnt">⏱️</div>
+          <h3>25-Minute Pomodoro Timer</h3>
+          <p>A clean, prominent countdown timer. Start, pause, and reset sessions. Custom settings let users adjust focus duration, break length, and notification preferences.</p>
         </div>
         <div class="card">
-          <div class="card-icon card-icon-blue">🔗</div>
-          <h3>Habit Stacking</h3>
-          <p>Chain habits together using anchor triggers. The app guides users through a pairing flow backed by behavioral science.</p>
+          <div class="card-icon card-icon-blue">📈</div>
+          <h3>Progress &amp; Statistics</h3>
+          <p>A comprehensive stats dashboard shows total sessions, focus time, tasks completed, and current streak — making productivity patterns visible and motivating.</p>
         </div>
         <div class="card">
-          <div class="card-icon card-icon-burnt">🏆</div>
-          <h3>Milestone Moments</h3>
-          <p>At Days 7, 21, and 66, the app celebrates with full-screen animations and badge unlocks that feel worth sharing.</p>
+          <div class="card-icon card-icon-burnt">🎉</div>
+          <h3>Achievement Celebrations</h3>
+          <p>Toast notifications celebrate completed sessions immediately. Streak tracking encourages daily consistency through visible long-term progress.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Key Design Decisions -->
+    <section>
+      <div class="section-label">Design Decisions</div>
+      <h2 class="section-title">Why We Made Each Call</h2>
+      <div class="process-list">
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>Why Flat Blue Over Gradients?</h4>
+            <p>While gradients feel modern, they compete for attention during focus sessions. Flat #5271FF creates a calmer aesthetic that doesn't distract from the user's work.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>Why Achievement Celebrations?</h4>
+            <p>Behavioral psychology shows that immediate positive reinforcement strengthens habit formation. Toast notifications provide the instant feedback loop that makes users more likely to return.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>Why Hamburger Menu Navigation?</h4>
+            <p>The dashboard prioritizes the most important action — starting a focus session. Secondary features are accessible but don't clutter the main interface. Focus first, configure second.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>Why Dark Mode Support?</h4>
+            <p>Full dark mode reduces eye strain during extended focus sessions, especially in low-light environments. Easily toggled through the hamburger menu without interrupting flow.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -774,29 +848,28 @@
     <!-- Outcomes -->
     <section>
       <div class="section-label">Outcomes</div>
-      <h2 class="section-title">What the Testing Revealed</h2>
+      <h2 class="section-title">What Was Built</h2>
       <p class="section-body">
-        Usability testing across 8 participants (2 rounds, SUS scoring) validated the core
-        flows and surfaced several iterations. The Replacement Brick mechanic was the
-        highest-rated feature — nearly every tester called it "the thing that would actually
-        keep me using this."
+        Focus Flow successfully integrates authentication, task management, timer functionality,
+        and statistics into a cohesive experience. The result feels like one unified tool rather
+        than separate features bolted together.
       </p>
       <div class="outcomes-grid">
         <div class="outcome-card">
-          <div class="outcome-num">88</div>
-          <div class="outcome-label">SUS Score (Excellent)</div>
+          <div class="outcome-num">5</div>
+          <div class="outcome-label">Core Features Shipped</div>
         </div>
         <div class="outcome-card">
-          <div class="outcome-num">90s</div>
-          <div class="outcome-label">Avg. First-Habit Time</div>
+          <div class="outcome-num">3wk</div>
+          <div class="outcome-label">Design to Prototype</div>
         </div>
         <div class="outcome-card">
-          <div class="outcome-num">8/8</div>
-          <div class="outcome-label">Testers Liked Repl. Brick</div>
+          <div class="outcome-num">2x</div>
+          <div class="outcome-label">Auth Options (Google &amp; FB)</div>
         </div>
         <div class="outcome-card">
-          <div class="outcome-num">2</div>
-          <div class="outcome-label">Iteration Rounds</div>
+          <div class="outcome-num">100%</div>
+          <div class="outcome-label">Mobile Responsive</div>
         </div>
       </div>
     </section>
@@ -808,17 +881,15 @@
       <div class="section-label">Reflection</div>
       <h2 class="section-title">What I'd Do Differently</h2>
       <p class="section-body">
-        Given more time, I'd run a longitudinal study to measure actual retention past Week 2.
-        The Replacement Brick system was hypothesized to reduce churn, but real behavioral data
-        would sharpen that story significantly. I'd also explore push notification personalization
-        — timing habit reminders to each user's logged peak-energy window rather than a static
-        schedule.
+        The pivot from gradient to flat blue was a valuable lesson — what looks impressive in
+        isolation may not serve users best in practice. Simpler design better supports the app's
+        core purpose. Given more time, I'd add advanced analytics (weekly trends, productivity
+        heatmaps) and calendar integration to sync focus sessions with scheduled tasks.
       </p>
-
       <div class="insight-box" style="margin-top:2rem;">
-        <strong>Biggest takeaway:</strong> Habit apps live or die on the emotional resonance of
-        failure states. Getting the "you missed a day" moment right is just as important as
-        celebrating a streak.
+        <strong>Biggest takeaway:</strong> Mobile-first design forces prioritization. There's no
+        room for unnecessary features. This constraint actually strengthened the product by ensuring
+        every element serves a clear purpose in the user's productivity workflow.
       </div>
     </section>
 
@@ -830,17 +901,17 @@
       <h2 class="section-title">How It Was Built</h2>
       <div class="tools-list">
         <span class="pill">Figma</span>
-        <span class="pill">FigJam</span>
+        <span class="pill">Figma Make</span>
         <span class="pill">React</span>
-        <span class="pill">TypeScript</span>
-        <span class="pill">HTML / CSS</span>
-        <span class="pill">Affinity Mapping</span>
-        <span class="pill">User Interviews</span>
-        <span class="pill">SUS Testing</span>
+        <span class="pill">Tailwind CSS</span>
+        <span class="pill">React Router</span>
+        <span class="pill">DM Sans</span>
+        <span class="pill">Google OAuth</span>
+        <span class="pill">Facebook OAuth</span>
+        <span class="pill">Local Storage</span>
         <span class="pill">Competitive Analysis</span>
-        <span class="pill">Persona Development</span>
-        <span class="pill">Prototype Testing</span>
-        <span class="pill">HMW Framework</span>
+        <span class="pill">Information Architecture</span>
+        <span class="pill">Mobile-First Design</span>
       </div>
     </section>
 
@@ -850,11 +921,11 @@
   <div class="bottom-cta">
     <p>Ready to see more of my work?</p>
     <div class="cta-group">
-      <a href="habit-stacking-portfolio__1_.pdf" download class="btn btn-primary">
+      <a href="Focus_Flow_Procrastination_Combat_App.pdf" download class="btn btn-primary">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M5 14l7 7 7-7"/><path d="M3 21h18"/></svg>
         Download Case Study PDF
       </a>
-      <a href="habit-stacking-prototype.html" target="_blank" class="btn btn-accent">
+      <a href="#" target="_blank" class="btn btn-accent">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         View Prototype
       </a>
@@ -867,8 +938,19 @@
 
   <!-- ─── FOOTER ─── -->
   <footer>
-    <span>© 2025 Robert Anderson · UX Designer</span>
-    <span>robert anderson <span style="color:var(--electric);">ux</span></span>
+    <div style="text-align:center; width:100%;">
+      <p style="font-size:0.9rem; color:var(--muted); margin-bottom:1rem;">
+        Interested in working together?
+      </p>
+      <a href="index.html#contact" class="btn btn-primary" style="margin-bottom:1.5rem;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 4h16v13H4z"/><path d="M4 4l8 9 8-9"/>
+        </svg>
+        Get in Touch
+      </a>
+      <br><br>
+      <span>© 2026 Robert Anderson · UX Designer</span>
+    </div>
   </footer>
 
 </body>

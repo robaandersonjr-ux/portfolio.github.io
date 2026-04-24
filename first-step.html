@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>First Step · Robert Anderson UX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── DESIGN TOKENS ─── */
+    :root {
+      --navy:        #0B1628;
+      --navy-mid:    #112040;
+      --navy-light:  #1A2F55;
+      --electric:    #2D6FF2;
+      --electric-glow: rgba(45, 111, 242, 0.18);
+      --burnt:       #E05C2A;
+      --burnt-light: rgba(224, 92, 42, 0.12);
+      --white:       #F4F7FF;
+      --muted:       #8A9BBC;
+      --card-bg:     rgba(17, 32, 64, 0.7);
+      --border:      rgba(45, 111, 242, 0.18);
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --radius:       12px;
+      --radius-lg:    20px;
+    }
+
+    /* ─── RESET ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--navy);
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── NOISE TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 2.5rem;
+      background: rgba(11, 22, 40, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+      color: var(--white);
+    }
+    .nav-logo span { color: var(--electric); }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--white); }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem 3rem;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--electric);
+      background: var(--electric-glow);
+      border: 1px solid rgba(45, 111, 242, 0.3);
+      border-radius: 100px;
+      padding: 0.35rem 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--burnt);
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      font-weight: 300;
+    }
+
+    /* ─── CTA BUTTONS ─── */
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 3.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 0.75rem 1.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      text-decoration: none;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary {
+      background: var(--electric);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(45, 111, 242, 0.35);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 28px rgba(45, 111, 242, 0.5); }
+    .btn-accent {
+      background: var(--burnt);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(224, 92, 42, 0.3);
+    }
+    .btn-accent:hover { box-shadow: 0 6px 28px rgba(224, 92, 42, 0.45); }
+    .btn-outline {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { color: var(--white); border-color: rgba(45, 111, 242, 0.5); }
+    .btn svg { flex-shrink: 0; }
+
+    /* ─── META STRIP ─── */
+    .meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4rem;
+    }
+    .meta-strip span { display: flex; align-items: center; gap: 0.4rem; }
+    .meta-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--electric);
+      display: inline-block;
+    }
+
+    /* ─── HERO IMAGE FRAME ─── */
+    .hero-frame {
+      position: relative;
+      max-width: 860px;
+      margin: 0 auto 6rem;
+      z-index: 1;
+      padding: 0 2rem;
+    }
+    .hero-frame-inner {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--navy-mid);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(45,111,242,0.08);
+    }
+    .hero-mockup {
+      width: 100%;
+      height: 420px;
+      background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy-light) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-mockup::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 39px,
+          rgba(45,111,242,0.06) 39px,
+          rgba(45,111,242,0.06) 40px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 79px,
+          rgba(45,111,242,0.04) 79px,
+          rgba(45,111,242,0.04) 80px
+        );
+    }
+    .mockup-phones {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+    .phone {
+      width: 120px;
+      border-radius: 20px;
+      border: 2px solid rgba(45,111,242,0.3);
+      background: var(--navy);
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      transition: transform 0.4s ease;
+    }
+    .phone:hover { transform: translateY(-8px); }
+    .phone-tall { height: 220px; }
+    .phone-short { height: 180px; transform: translateY(20px); }
+    .phone-inner {
+      height: 100%;
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .p-label {
+      font-size: 0.45rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .p-heading {
+      height: 10px;
+      border-radius: 4px;
+      background: var(--white);
+      opacity: 0.8;
+      width: 80%;
+    }
+    .p-input {
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid rgba(45,111,242,0.3);
+      background: rgba(255,255,255,0.04);
+      margin-top: 0.25rem;
+    }
+    .p-btn {
+      height: 22px;
+      border-radius: 6px;
+      background: var(--electric);
+      opacity: 0.85;
+      margin-top: auto;
+    }
+    .p-step-dot {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--electric);
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.45rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .p-circle {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      border: 3px solid var(--electric);
+      margin: 0.25rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5rem;
+      color: var(--electric);
+      font-weight: 700;
+    }
+    .p-bar {
+      height: 6px;
+      border-radius: 4px;
+      background: var(--electric);
+      opacity: 0.5;
+    }
+    .p-bar-sm { width: 60%; }
+    .p-dot-row {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: auto;
+    }
+    .p-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--electric);
+      opacity: 0.5;
+    }
+    .p-dot.active { opacity: 1; }
+
+    /* ─── MAIN CONTENT ─── */
+    .content-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── SECTION LABEL ─── */
+    .section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--electric);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+    .section-body {
+      color: var(--muted);
+      font-size: 0.97rem;
+      line-height: 1.8;
+      max-width: 680px;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4rem 0;
+    }
+
+    /* ─── CARDS GRID ─── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover {
+      border-color: rgba(45, 111, 242, 0.4);
+      transform: translateY(-3px);
+    }
+    .card-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+    .card-icon-blue { background: var(--electric-glow); }
+    .card-icon-burnt { background: var(--burnt-light); }
+    .card h3 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.4rem;
+    }
+    .card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ─── PROCESS STEPS ─── */
+    .process-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem; }
+    .process-step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+    .step-num {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: var(--electric-glow);
+      border: 1px solid rgba(45,111,242,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--electric);
+      flex-shrink: 0;
+    }
+    .step-content h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+    .step-content p { font-size: 0.875rem; color: var(--muted); }
+
+    /* ─── INSIGHT CALLOUT ─── */
+    .insight-box {
+      background: var(--burnt-light);
+      border: 1px solid rgba(224, 92, 42, 0.25);
+      border-left: 3px solid var(--burnt);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.75rem;
+      margin: 2rem 0;
+      font-size: 0.95rem;
+      color: var(--white);
+      line-height: 1.7;
+    }
+    .insight-box strong { color: var(--burnt); font-weight: 600; }
+
+    /* ─── OUTCOMES GRID ─── */
+    .outcomes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .outcome-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+    .outcome-num {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--electric);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+    }
+    .outcome-label { font-size: 0.8rem; color: var(--muted); }
+
+    /* ─── TOOLS PILLS ─── */
+    .tools-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+    .pill {
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── BOTTOM CTA ─── */
+    .bottom-cta {
+      text-align: center;
+      padding: 5rem 2rem 6rem;
+      position: relative;
+      z-index: 1;
+    }
+    .bottom-cta p {
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ─── FADE IN ANIMATION ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.7s ease both; }
+    .fade-up-1 { animation-delay: 0.1s; }
+    .fade-up-2 { animation-delay: 0.22s; }
+    .fade-up-3 { animation-delay: 0.34s; }
+    .fade-up-4 { animation-delay: 0.46s; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      nav { padding: 1rem 1.25rem; }
+      .nav-links { gap: 1.2rem; }
+      .hero { padding: 3.5rem 1.25rem 2rem; }
+      .content-wrap { padding: 0 1.25rem; }
+      .hero-frame { padding: 0 1.25rem; }
+      footer { flex-direction: column; gap: 0.75rem; text-align: center; }
+      .mockup-phones { gap: 1rem; }
+      .phone { width: 96px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─── -->
+  <nav>
+    <a href="index.html" class="nav-logo">robert anderson <span>ux</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#resume">Resume</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="hero-eyebrow fade-up fade-up-1">Case Study · Mobile UX</div>
+    <h1 class="fade-up fade-up-2">First <em>Step</em></h1>
+    <p class="hero-sub fade-up fade-up-3">
+      A minimal mobile app that helps users overcome task avoidance by breaking down
+      overwhelming tasks into clear, actionable first steps — no lists, no tracking,
+      just the clarity and momentum to begin.
+    </p>
+    <div class="cta-group fade-up fade-up-4">
+      <a href="First_Step_mobile_app_Case_Study.pdf" download class="btn btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M5 14l7 7 7-7"/><path d="M3 21h18"/></svg>
+        Download Case Study PDF
+      </a>
+      <a href="First_Step_mobile_app–prototype.html" target="_blank" class="btn btn-accent">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        View Prototype
+      </a>
+      <a href="index.html" class="btn btn-outline">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back to Portfolio
+      </a>
+    </div>
+    <div class="meta-strip fade-up fade-up-4">
+      <span><span class="meta-dot"></span> Role: Product Designer &amp; Developer</span>
+      <span><span class="meta-dot"></span> Platform: Mobile Web App</span>
+      <span><span class="meta-dot"></span> Type: Behavioral UX</span>
+      <span><span class="meta-dot"></span> Status: Prototype Complete</span>
+    </div>
+  </section>
+
+  <!-- ─── HERO MOCKUP FRAME ─── -->
+  <div class="hero-frame fade-up fade-up-4">
+    <div class="hero-frame-inner">
+      <div class="hero-mockup">
+        <div class="mockup-phones">
+          <!-- Phone 1 — Welcome / Task Input -->
+          <div class="phone phone-short">
+            <div class="phone-inner">
+              <div class="p-label">What's on your mind?</div>
+              <div class="p-heading"></div>
+              <div class="p-input"></div>
+              <div class="p-bar p-bar-sm" style="opacity:0.2; margin-top:0.25rem;"></div>
+              <div class="p-btn"></div>
+            </div>
+          </div>
+          <!-- Phone 2 — Clarification (center, tallest) -->
+          <div class="phone phone-tall">
+            <div class="phone-inner">
+              <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.25rem;">
+                <div class="p-step-dot">2</div>
+                <div class="p-label" style="font-size:0.5rem;">First Step Clarification</div>
+              </div>
+              <div class="p-label" style="opacity:0.6; font-size:0.42rem;">You said: I need to deal with that project...</div>
+              <div class="p-heading" style="margin-top:0.4rem;"></div>
+              <div class="p-input"></div>
+              <div class="p-label" style="margin-top:0.25rem; font-size:0.42rem;">How many minutes can you commit?</div>
+              <div class="p-input" style="height:20px;"></div>
+              <div class="p-btn" style="background: var(--electric); margin-top:0.25rem;"></div>
+            </div>
+          </div>
+          <!-- Phone 3 — Timer Active -->
+          <div class="phone phone-short">
+            <div class="phone-inner">
+              <div class="p-label" style="text-align:center;">Working on:</div>
+              <div class="p-circle">10:00</div>
+              <div class="p-bar" style="width:70%; margin:0 auto; opacity:0.6;"></div>
+              <div class="p-bar p-bar-sm" style="margin:0 auto; opacity:0.3;"></div>
+              <div class="p-dot-row" style="justify-content:center;">
+                <div class="p-dot active"></div>
+                <div class="p-dot"></div>
+                <div class="p-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <div class="content-wrap">
+
+    <!-- Overview -->
+    <section>
+      <div class="section-label">Overview</div>
+      <h2 class="section-title">The Problem Worth Solving</h2>
+      <p class="section-body">
+        Procrastination and task avoidance aren't always about laziness or poor time management.
+        For many people, the real barrier is ambiguity. When a task feels vague or overwhelming,
+        the brain defaults to avoidance as a protective mechanism. Traditional productivity apps
+        add features to solve this — First Step removes them.
+      </p>
+      <div class="insight-box">
+        <strong>Core Insight:</strong> Most productivity apps assume the user already knows what
+        to do next. But for those struggling with executive function, ADHD, or feeling overwhelmed,
+        the challenge isn't tracking tasks — it's knowing where to start.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Challenge + Goals -->
+    <section>
+      <div class="section-label">Challenge &amp; Goals</div>
+      <h2 class="section-title">What We Were Designing For</h2>
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon card-icon-blue">🧠</div>
+          <h3>Reduce Cognitive Load</h3>
+          <p>Show only essential information at any given moment. No competing elements, no decision fatigue — one clear next step.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon-burnt">🎯</div>
+          <h3>Transform Vague Into Actionable</h3>
+          <p>Guide users through a three-step process that converts abstract anxiety into a concrete, small commitment they can act on immediately.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon-blue">🛡️</div>
+          <h3>Create Emotional Safety</h3>
+          <p>Use encouraging language that is never demanding. Explicitly give users permission to stop — the goal is starting, not finishing.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon-burnt">✂️</div>
+          <h3>Intentional Subtraction</h3>
+          <p>No accounts, no task lists, no history, no gamification. Every "what if users want..." idea was evaluated against the core behavioral goal.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Research -->
+    <section>
+      <div class="section-label">Research &amp; Discovery</div>
+      <h2 class="section-title">Understanding the User</h2>
+      <p class="section-body">
+        Through informal research and personal experience with task avoidance, four key patterns
+        emerged that shaped every design decision in the app.
+      </p>
+      <div class="cards-grid" style="margin-top: 2rem;">
+        <div class="card">
+          <div class="card-icon card-icon-blue">💬</div>
+          <h3>Vague Language Creates Barriers</h3>
+          <p>"Deal with that project" or "organize workspace" are too abstract to act on. The brain stalls when it can't picture the first move.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon-burnt">⚙️</div>
+          <h3>Feature Overload Increases Friction</h3>
+          <p>Complex apps with categories, tags, and priorities add decision fatigue before the user even starts working.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon-blue">🔄</div>
+          <h3>All-or-Nothing Thinking</h3>
+          <p>Users feel they need to complete the entire task or not start at all. Micro-commitments break this pattern.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon card-icon-burnt">😔</div>
+          <h3>Guilt &amp; Tracking Backfire</h3>
+          <p>Productivity metrics and incomplete task lists create shame, not motivation. First Step tracks nothing.</p>
+        </div>
+      </div>
+
+      <div class="insight-box" style="margin-top: 2rem;">
+        <strong>Primary User Need:</strong> "I need help transforming my vague anxiety about a task
+        into a clear, small action I can take right now — without judgment, pressure, or the burden
+        of tracking."
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- User Flow -->
+    <section>
+      <div class="section-label">User Flow</div>
+      <h2 class="section-title">Three Steps. That's It.</h2>
+      <p class="section-body">
+        The entire app is a single, deliberate three-step process. Each step has one clear purpose
+        and no distractions. Breaking the flow into discrete stages prevents overwhelm and guides
+        users through a proven behavioral pattern.
+      </p>
+      <div class="process-list">
+        <div class="process-step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h4>Acknowledge</h4>
+            <p>Write down the vague task exactly as it appears in your mind. No formatting required. The prompt asks "What's on your mind?" — not "What do you need to do?" — to reduce perceived pressure from the first word.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h4>Clarify</h4>
+            <p>The original task is reflected back — "You said: I need to deal with that project..." — to validate input and create continuity. Users then define the smallest possible first action they can take right now.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h4>Commit</h4>
+            <p>Set a short time commitment — default 10 minutes. Research shows micro-commitments reduce resistance, and users often continue beyond the timer once momentum builds. The timer is optional by design.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Design Decisions -->
+    <section>
+      <div class="section-label">Design Decisions</div>
+      <h2 class="section-title">Why We Made Each Call</h2>
+      <div class="process-list">
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>Language Design Matters</h4>
+            <p>Changing "What do you need to do?" to "What's on your mind?" significantly reduced the pressure users felt. Small word choices have outsized psychological impact.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>The Timer is Optional for a Reason</h4>
+            <p>While the timer provides structure, forcing its use would contradict the "no pressure" philosophy. Giving users autonomy is more important than optimizing engagement metrics.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>No Persistence by Design</h4>
+            <p>First Step doesn't save history or require accounts. Each session is ephemeral, reducing the cognitive burden of "managing" the app itself. Privacy by default — no data, no tracking, no cookies.</p>
+          </div>
+        </div>
+        <div class="process-step">
+          <div class="step-num">→</div>
+          <div class="step-content">
+            <h4>Designing for Executive Function</h4>
+            <p>Traditional UX assumes users arrive with clear goals and just need efficient paths. For users with ADHD, anxiety, or executive dysfunction, the app itself must provide structure and reduce decision points.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Design System -->
+    <section>
+      <div class="section-label">Design System</div>
+      <h2 class="section-title">Visual Calm as a Feature</h2>
+      <p class="section-body">
+        Every visual decision in First Step is intentional. Generous whitespace and soft colors
+        reduce anxiety. Clear hierarchy with no competing visual elements. The calm blue palette
+        communicates safety and clarity — not urgency.
+      </p>
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1.75rem;">
+        <div style="flex:1; min-width:100px;">
+          <div style="height:60px; border-radius:10px; background:#5B7FA6; border:1px solid rgba(255,255,255,0.08);"></div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Calm Blue<br>#5B7FA6</p>
+        </div>
+        <div style="flex:1; min-width:100px;">
+          <div style="height:60px; border-radius:10px; background:#2F4E6F; border:1px solid rgba(255,255,255,0.08);"></div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Deeper Blue<br>#2F4E6F</p>
+        </div>
+        <div style="flex:1; min-width:100px;">
+          <div style="height:60px; border-radius:10px; background:#F2F1EE; border:1px solid rgba(255,255,255,0.08);"></div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">Warm Gray<br>#F2F1EE</p>
+        </div>
+        <div style="flex:1; min-width:100px;">
+          <div style="height:60px; border-radius:10px; background:#FFFFFF; border:1px solid rgba(255,255,255,0.15);"></div>
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem;">White<br>#FFFFFF</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Outcomes -->
+    <section>
+      <div class="section-label">Outcomes</div>
+      <h2 class="section-title">What Was Built</h2>
+      <p class="section-body">
+        First Step proves that subtraction is a design skill. The hardest part was resisting
+        the urge to add features. The result is an app that feels focused because it is —
+        every element serves the single goal of helping users begin.
+      </p>
+      <div class="outcomes-grid">
+        <div class="outcome-card">
+          <div class="outcome-num">100%</div>
+          <div class="outcome-label">Mobile Optimized</div>
+        </div>
+        <div class="outcome-card">
+          <div class="outcome-num">Zero</div>
+          <div class="outcome-label">External Dependencies</div>
+        </div>
+        <div class="outcome-card">
+          <div class="outcome-num">3</div>
+          <div class="outcome-label">Step User Flow</div>
+        </div>
+        <div class="outcome-card">
+          <div class="outcome-num">0</div>
+          <div class="outcome-label">Data Stored or Tracked</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Reflection -->
+    <section>
+      <div class="section-label">Reflection</div>
+      <h2 class="section-title">What I'd Do Differently</h2>
+      <p class="section-body">
+        First Step forced me to think differently about what "more" means in product design.
+        Adding features would have felt like progress but would have undermined the core
+        behavioral goal. Given more time, I'd conduct usability testing with users who have ADHD
+        or anxiety to validate whether the language and flow truly reduce psychological friction —
+        not just assume it does.
+      </p>
+      <div class="insight-box" style="margin-top:2rem;">
+        <strong>Biggest takeaway:</strong> Subtraction is a design skill. The most impactful
+        decisions in this project were the features we chose not to build. Knowing what to leave
+        out is harder — and more valuable — than knowing what to add.
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Tools -->
+    <section>
+      <div class="section-label">Tools &amp; Methods</div>
+      <h2 class="section-title">How It Was Built</h2>
+      <div class="tools-list">
+        <span class="pill">Figma</span>
+        <span class="pill">React 18</span>
+        <span class="pill">TypeScript</span>
+        <span class="pill">Tailwind CSS 4</span>
+        <span class="pill">Vite</span>
+        <span class="pill">Web Audio API</span>
+        <span class="pill">Vibration API</span>
+        <span class="pill">Behavioral UX</span>
+        <span class="pill">Mobile-First Design</span>
+        <span class="pill">Accessibility (WCAG AA)</span>
+        <span class="pill">Micro-commitment Research</span>
+        <span class="pill">Privacy by Default</span>
+      </div>
+    </section>
+
+  </div><!-- /content-wrap -->
+
+  <!-- ─── BOTTOM CTA ─── -->
+  <div class="bottom-cta">
+    <p>Ready to see more of my work?</p>
+    <div class="cta-group">
+      <a href="First_Step_mobile_app_Case_Study.pdf" download class="btn btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v13M5 14l7 7 7-7"/><path d="M3 21h18"/></svg>
+        Download Case Study PDF
+      </a>
+      <a href="#" target="_blank" class="btn btn-accent">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        View Prototype
+      </a>
+      <a href="index.html" class="btn btn-outline">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Back to Portfolio
+      </a>
+    </div>
+  </div>
+
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div style="text-align:center; width:100%;">
+      <p style="font-size:0.9rem; color:var(--muted); margin-bottom:1rem;">
+        Interested in working together?
+      </p>
+      <a href="index.html#contact" class="btn btn-primary" style="margin-bottom:1.5rem;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 4h16v13H4z"/><path d="M4 4l8 9 8-9"/>
+        </svg>
+        Get in Touch
+      </a>
+      <br><br>
+      <span>© 2026 Robert Anderson · UX Designer</span>
+    </div>
+  </footer>
+
+</body>
+</html>
