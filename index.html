@@ -51,7 +51,7 @@ nav{background:rgba(10,24,49,0.97);backdrop-filter:blur(8px);-webkit-backdrop-fi
 .filter-btn:hover:not(.active){border-color:#888880;}
 
 /* PROJECTS */
-.projects{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.projects{display:grid;grid-template-columns: repeat(3, 1fr);gap: 16px;}
 .project-card{background:#fff;border:0.5px solid #e0ddd5;border-radius:18px;overflow:hidden;transition:transform .25s,box-shadow .25s;cursor:pointer;}
 .project-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(10,24,49,0.12);}
 .project-card.hidden{display:none;}
@@ -68,7 +68,10 @@ nav{background:rgba(10,24,49,0.97);backdrop-filter:blur(8px);-webkit-backdrop-fi
 .project-title{font-family:'Fraunces',serif;font-weight:600;font-size:16px;color:#0A1831;margin-bottom:5px;}
 .project-blurb{font-size:12px;line-height:1.6;color:#6b6b67;margin-bottom:8px;}
 .project-role{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#AD4E14;font-weight:500;}
-
+.projects a {
+  display: contents;
+  
+}
 /* ABOUT */
 .about-card{background:#fff;border:0.5px solid #e0ddd5;border-radius:20px;overflow:hidden;display:grid;grid-template-columns:0.9fr 1.1fr;}
 .about-photo{min-height:280px;overflow:hidden;}
